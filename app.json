@@ -23,8 +23,10 @@
         "backgroundColor": "#ffffff"
       }
     },
+    "scheme": "your-app-scheme",
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     }
   }
 }
