@@ -1,0 +1,47 @@
+# Workflow Name
+name: Deploy to GAE [Push to 'Main', Promoted]
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # 1) Check-out & access the repository under $GITHUB_WORKSPACE.
+      - uses: actions/checkout@v3
+
+      # 2) Install & set-up Node.js on a Virtual Machine
+      #    Learn More => https://nodejs.org/en/docs/
+      - name: Setup Node.js (Version 18.x)
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      # 3) Install Dependencies w/ Node Package Manager
+      #    Learn More => https://docs.npmjs.com/cli/v8/commands/npm-install
+      - name: Install Node.js Dependencies
+        run: npm install
+
+      # 4) Build the React Native web app.
+      - name: Build React Native web app
+        run: npm run build
+
+      # 5) Authenticate w/ Google Cloud
+      #    Learn More => https://docs.github.com/en/actions/security-guides/encrypted-secrets
+      - name: Authenticate w/ Google Cloud
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
+
+      # 6) Deploy the app to Google App Engine (Production)
+      #    Learn More => https://cloud.google.com/appengine/docs/standard/python3/runtime
+      - name: Deploy to GAE [Promoted]
+        uses: google-github-actions/deploy-appengine@v0
+        with:
+          deliverables: app.yaml
