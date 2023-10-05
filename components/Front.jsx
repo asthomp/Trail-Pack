@@ -1,36 +1,43 @@
-import {StyleSheet, View} from 'react-native'
-import {Card, Text} from 'react-native-paper'
-import React from "react"
-import LinkButton from "./LinkButton"
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import { Card, Text } from "react-native-paper";
 
+import LinkButton from "./LinkButton";
 
 export default function Front() {
-    return (
-        <View style={style.frontContainer}>
-            <Card style={style.frontCard}>
-                <Card.Cover source={{uri: '/assets/map.jpg'}}/>
-                <Card.Title title="Welcome"/>
-                <Card.Content><Text style={style.frontText}>This is Peacock and Sunshine's really great app.
-                    Wow! You can click the button to learn more.</Text>
-                    <LinkButton text="About Us" link="/details"/>
-                </Card.Content>
-            </Card>
-        </View>
-    )
+  return (
+    <View style={style.frontContainer}>
+      <Card style={style.frontCard}>
+        <Card.Cover
+          source={require("../assets/images/map.jpg")}
+          resizeMode="cover"
+        />
+        <Card.Title title="Welcome" />
+        <Card.Content>
+          <Text style={style.frontText}>
+            This is Peacock and Sunshine's really great app. Wow! You can click
+            the button to learn more.
+          </Text>
+          <LinkButton text="About Us" link="/details" />
+        </Card.Content>
+      </Card>
+    </View>
+  );
 }
 
 const style = StyleSheet.create({
-    frontContainer: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        paddingTop: 20
-    },
-    frontCard: {
-        marginLeft: 15,
-        marginRight: 15
-    },
-    frontText: {
-        marginBottom: 20,
-    }
-})
+  frontContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 64,
+  },
+  frontCard: {
+    display: "flex",
+    marginLeft: 15,
+    marginRight: 15,
+  },
+  frontText: {
+    marginBottom: 20,
+  },
+});

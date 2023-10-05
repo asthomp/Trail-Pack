@@ -7,14 +7,15 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build": "expo export -p wieb",
-    "deploy": "firebase deploy",
+    "build": "expo export -p web",
+    "deploy": "npm run build && firebase deploy --only hosting",
     "test": "expo test",
     "lint": "eslint '**/*.jsx'"
-
   },
   "dependencies": {
+    "@expo/vector-icons": "^13.0.0",
     "@react-native-community/masked-view": "^0.1.11",
+    "@react-navigation/drawer": "^6.6.4",
     "@react-navigation/native": "^6.1.8",
     "@react-navigation/stack": "^6.3.18",
     "expo": "~49.0.13",
@@ -29,6 +30,7 @@
     "react-native-reanimated": "~3.3.0",
     "react-native-safe-area-context": "4.6.3",
     "react-native-screens": "~3.22.0",
+    "react-native-vector-icons": "^10.0.0",
     "react-native-web": "~0.19.6"
   },
   "devDependencies": {

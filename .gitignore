@@ -38,3 +38,6 @@ yarn-error.*
 /.idea/modules.xml
 /.idea/Trail-Trek.iml
 /.idea/vcs.xml
+/.idea/jsLinters/eslint.xml
+/.firebase/hosting.ZGlzdA.cache
+/.idea/inspectionProfiles/Project_Default.xml
