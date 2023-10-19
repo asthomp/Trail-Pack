@@ -1,3 +1,5 @@
+# This workflow handles deploying the live site to Firebase.
+
 name: Deploy to Firebase Hosting on merge
 'on':
   push:
@@ -16,9 +18,6 @@ jobs:
 
       - name: "Install Node.js Dependencies"
         run: npm install
-
-      - name: "Lint & Test"
-        run: npm run lint
 
       - name: "Build React-Native Web App to /dist folder."
         run: npm run build

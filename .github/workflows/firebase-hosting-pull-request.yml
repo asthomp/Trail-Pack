@@ -1,4 +1,6 @@
-# Workflow Name
+# This workflow tests an incoming PR and creates a temporary address to view the
+# website before merging it into main & deploying to production.
+
 name: Deploy to Firebase Hosting on PR
 'on':
   pull_request:

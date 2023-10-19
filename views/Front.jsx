@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Card, Text } from "react-native-paper";
 
-import LinkButton from "./LinkButton";
+import LinkButton from "../components/LinkButton";
 
 export default function Front() {
   return (
@@ -18,7 +18,8 @@ export default function Front() {
             This is Peacock and Sunshine's really great app. Wow! You can click
             the button to learn more.
           </Text>
-          <LinkButton text="About Us" link="/details" />
+          <LinkButton text="About Us" link="/about" />
+          <LinkButton text="Contact" link="/contact" />
         </Card.Content>
       </Card>
     </View>
