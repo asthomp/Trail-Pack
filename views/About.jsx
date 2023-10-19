@@ -2,7 +2,7 @@ import React from "react";
 import { View, StyleSheet } from "react-native";
 import { Card, Text } from "react-native-paper";
 
-import LinkButton from "./LinkButton";
+import LinkButton from "../components/LinkButton";
 
 export default function About() {
   return (
@@ -15,7 +15,7 @@ export default function About() {
             Peacock and Sunshine are both avid backpackers who enjoy spending
             their time hiking in the Pacific Northwest.
           </Text>
-          <LinkButton text="Return Home" link="/" mode="dark" />
+          <LinkButton text="Return Home" link="../" mode="dark" />
         </Card.Content>
       </Card>
     </View>

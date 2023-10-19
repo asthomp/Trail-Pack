@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Drawer } from "expo-router/drawer";
 import { PaperProvider } from "react-native-paper";
 
 import NavBar from "../components/NavBar";
@@ -7,12 +7,14 @@ export const unstable_settings = {
   initialRouteName: "index",
 };
 
-export default function MainLayout() {
+export default function MainDrawer() {
   return (
     <PaperProvider>
-      <Stack
+      <Drawer
         screenOptions={{
-          header: (props) => <NavBar {...props} />,
+          header: () => {
+            return <NavBar />;
+          },
         }}
       />
     </PaperProvider>
