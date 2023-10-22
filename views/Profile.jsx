@@ -30,6 +30,7 @@ const style = StyleSheet.create({
   profileCard: {
     marginLeft: 15,
     marginRight: 15,
+    maxWidth: 700,
   },
   profileText: {
     marginBottom: 20,

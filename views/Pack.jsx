@@ -35,7 +35,7 @@ const style = StyleSheet.create({
   packCard: {
     marginLeft: 15,
     marginRight: 15,
-    minWidth: "fit-content",
+    maxWidth: 700,
   },
   packText: {
     marginBottom: 20,
