@@ -30,6 +30,7 @@ const style = StyleSheet.create({
     display: "flex",
     marginLeft: 15,
     marginRight: 15,
+    maxWidth: 700,
   },
   frontText: {
     marginBottom: 20,
