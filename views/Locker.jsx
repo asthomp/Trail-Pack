@@ -33,7 +33,7 @@ const style = StyleSheet.create({
   lockerCard: {
     marginLeft: 15,
     marginRight: 15,
-    maxWidth: 700,
+    maxWidth: "90%",
   },
   lockerText: {
     marginBottom: 20,
