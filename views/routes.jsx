@@ -29,4 +29,4 @@
 //        The route will be "/contact"
 //      Note that, in both cases, the (*) folder is not included in the final route.
 
-export default { home: "../", about: "about/", contact: "about/contact" };
+export default { home: "/", about: "/about", contact: "/contact" };

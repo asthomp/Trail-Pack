@@ -4,25 +4,12 @@
 // Requirements: text: a String title, link: a String route, mode (optional) "dark"||"light"||"outlined"
 import { router } from "expo-router";
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, useColorScheme } from "react-native";
 import { Button } from "react-native-paper";
 
-export default function LinkButton({
-  text,
-  link,
-  icon = null,
-  mode = "contained-tonal",
-}) {
-  // Error handling for button color theming.
-  if (mode === "dark") {
-    mode = "contained";
-  } else if (mode === "light") {
-    mode = "contained-tonal";
-  } else if (mode === "outlined") {
-    mode = "outlined";
-  } else {
-    mode = "contained-tonal";
-  }
+export default function LinkButton({ text, link, icon = null }) {
+  const scheme = useColorScheme();
+  const mode = scheme === "light" ? "contained-tonal" : "contained";
 
   return (
     <View style={style.button}>
