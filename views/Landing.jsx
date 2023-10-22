@@ -9,7 +9,7 @@ export default function Landing() {
   return (
     <View style={style.frontContainer}>
       <Card style={style.frontCard}>
-        <Card.Cover source={Map} resizeMode="cover" />
+        <Card.Cover source={Map} style={style.frontImage} />
         <Card.Title title={strings.landingTitle} />
         <Card.Content>
           <Text style={style.frontText}>{strings.loremIpsum}</Text>
@@ -30,7 +30,7 @@ const style = StyleSheet.create({
     display: "flex",
     marginLeft: 15,
     marginRight: 15,
-    maxWidth: 700,
+    maxWidth: "90%",
   },
   frontText: {
     marginBottom: 20,
