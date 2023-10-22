@@ -2,24 +2,17 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Card, Text } from "react-native-paper";
 
-import LinkButton from "../components/LinkButton";
+import strings from "./strings.json";
+import Map from "../assets/images/map.jpg";
 
-export default function Front() {
+export default function Landing() {
   return (
     <View style={style.frontContainer}>
       <Card style={style.frontCard}>
-        <Card.Cover
-          source={require("../assets/images/map.jpg")}
-          resizeMode="cover"
-        />
-        <Card.Title title="Welcome" />
+        <Card.Cover source={Map} resizeMode="cover" />
+        <Card.Title title={strings.landingTitle} />
         <Card.Content>
-          <Text style={style.frontText}>
-            This is Peacock and Sunshine's really great app. Wow! You can click
-            the button to learn more.
-          </Text>
-          <LinkButton text="About Us" link="/about" />
-          <LinkButton text="Contact" link="/contact" />
+          <Text style={style.frontText}>{strings.loremIpsum}</Text>
         </Card.Content>
       </Card>
     </View>
