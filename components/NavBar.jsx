@@ -3,8 +3,9 @@ import { router } from "expo-router";
 import React from "react";
 import { Appbar } from "react-native-paper";
 
+import strings from "../assets/strings.json";
+
 export default function NavBar() {
-  const title = "Trail Pack";
   return (
     <Appbar.Header>
       {router.canGoBack() ? (
@@ -14,7 +15,7 @@ export default function NavBar() {
           }}
         />
       ) : null}
-      <Appbar.Content title={title} />
+      <Appbar.Content title={strings.title} />
       <Appbar.Action
         icon={({ size, color }) => (
           <FontAwesome

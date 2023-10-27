@@ -1,24 +1,69 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
-import { Card, Text } from "react-native-paper";
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, ScrollView } from "react-native";
+import { Text, List, Divider, Card } from "react-native-paper";
 
-import strings from "./strings.json";
-import LinkButton from "../components/LinkButton";
-
+import AddFAB from "../components/AddFAB";
+import CategoryIcon from "../components/CategoryIcon";
+import Database from "../database/db";
 export default function Locker() {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    const db = new Database();
+    db.getItems(1).then((x) => {
+      setData(x);
+    });
+  }, []);
   return (
     <View style={style.lockerContainer}>
-      <Card style={style.lockerCard}>
-        <Card.Title title={strings.lockerTitle} />
-        <Card.Content>
-          <Text style={style.lockerText}>This will be the user's locker.</Text>
-          <Text style={style.lockerText}>
-            It holds all the gear a user owns.
-          </Text>
-          <Text style={style.lockerText}>It's a page break demo.</Text>
-          <LinkButton text="Return Home" link="/" />
-        </Card.Content>
+      <Card>
+        <Text>Sort by Category</Text>
       </Card>
+      <ScrollView>
+        <List.Section
+          style={{
+            flexDirection: "column",
+            flexGrow: 1,
+            justifyContent: "flex-start",
+            alignItems: "stretch",
+          }}
+        >
+          {data !== null &&
+            data.map((x) => {
+              return (
+                <View key={"Item ID #" + x.itemID + "'s View''"}>
+                  <List.Item
+                    key={"Item ID #" + x.itemID + "'s Block'"}
+                    title={x.product}
+                    description={x.category}
+                    left={(props) => (
+                      <List.Icon
+                        {...props}
+                        icon={({ size, color }) => (
+                          <CategoryIcon
+                            category={x.category}
+                            size={size - 5}
+                            color={color}
+                          />
+                        )}
+                      />
+                    )}
+                    right={(props) => (
+                      <Text key={"Item ID #" + x.itemID + "'s Weight'"}>
+                        {x.weight} {x.weightUnit}
+                      </Text>
+                      // <Pressable onPress={() => {}}>
+                      //   <List.Icon {...props} icon="pencil" />
+                      // </Pressable>
+                    )}
+                  />
+                  <Divider key={"Item ID #" + x.itemID + "'s Divider'"} />
+                </View>
+              );
+            })}
+        </List.Section>
+      </ScrollView>
+      <AddFAB text="Add an Item" />
     </View>
   );
 }
@@ -26,16 +71,7 @@ export default function Locker() {
 const style = StyleSheet.create({
   lockerContainer: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 64,
-  },
-  lockerCard: {
-    marginLeft: 15,
-    marginRight: 15,
-    maxWidth: "90%",
-  },
-  lockerText: {
-    marginBottom: 20,
+    alignItems: "stretch",
+    justifyContent: "flex-start",
   },
 });

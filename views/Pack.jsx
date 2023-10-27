@@ -2,8 +2,8 @@ import React from "react";
 import { View, StyleSheet } from "react-native";
 import { Card, Text } from "react-native-paper";
 
-import strings from "./strings.json";
 import Tent from "../assets/images/tent.jpg";
+import strings from "../assets/strings.json";
 import LinkButton from "../components/LinkButton";
 
 export default function Pack() {
