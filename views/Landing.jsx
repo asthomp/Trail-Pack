@@ -9,7 +9,7 @@ export default function Landing() {
     <View style={style.frontContainer}>
       <Card style={style.frontCard}>
         <Card.Cover source={Map} />
-        <Card.Title title={strings.landingTitle} />
+        <Card.Title title="Welcome" />
         <Card.Content>
           <Text style={style.frontText}>{strings.loremIpsum}</Text>
         </Card.Content>

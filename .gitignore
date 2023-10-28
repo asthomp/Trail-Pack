@@ -42,5 +42,5 @@ yarn-error.*
 /.firebase/hosting.ZGlzdA.cache
 /.idea/inspectionProfiles/Project_Default.xml
 
-/database/sek/
-/database/sek/trail-pack-400523-firebase-adminsdk-ev385-5bd235b55b.json
+/utils/sek/
+/utils/sek/trail-pack-400523-firebase-adminsdk-ev385-5bd235b55b.json

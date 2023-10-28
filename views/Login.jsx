@@ -1,11 +1,12 @@
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
 import { View, StyleSheet } from "react-native";
-import { Card, Text } from "react-native-paper";
+import { Button, Card } from "react-native-paper";
 import { MD2DarkTheme as theme } from "react-native-paper/src";
 
-import LinkButton from "../components/LinkButton";
 import SecureTextInput from "../components/SecureTextInput";
+
 export default function Login() {
   const [email, setEmail] = useState({ value: "", error: "" });
   const [password, setPassword] = useState({ value: "", error: "" });
@@ -37,7 +38,25 @@ export default function Login() {
             errorText={password.error}
             secureTextEntry
           />
-          <LinkButton text="Login" link="/" />
+          <Button
+            mode="contained"
+            onPress={() => {
+              const auth = getAuth();
+              signInWithEmailAndPassword(auth, email.value, password.value)
+                .then((userCredential) => {
+                  // Signed in
+                  const user = userCredential.user;
+                  router.push("/");
+                })
+                .catch((error) => {
+                  const errorCode = error.code;
+                  const errorMessage = error.message;
+                  console.log(error.message);
+                });
+            }}
+          >
+            Login
+          </Button>
         </Card.Content>
         <Card.Actions>
           <Link href="/signup">Signup</Link>
