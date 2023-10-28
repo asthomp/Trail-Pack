@@ -22,9 +22,6 @@ const firebaseConfig = {
   measurementId: "G-QC6ZCQ5D5Y",
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
 class Database {
   constructor() {
     this.db = getFirestore();
