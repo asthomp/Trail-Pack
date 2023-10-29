@@ -1,6 +1,6 @@
 import React from "react";
 
-import Locker from "../../../views/Locker";
+import Locker from "../../../screens/Locker";
 
 export default function locker() {
   return <Locker />;

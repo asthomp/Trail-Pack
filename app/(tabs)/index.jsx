@@ -2,8 +2,8 @@ import { Redirect } from "expo-router";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 
-import Loading from "../../components/Loading";
-import Landing from "../../views/Landing";
+import Landing from "../../screens/Landing";
+import Loading from "../../views/Loading";
 
 export default function App() {
   const [user, setUser] = useState("Loading");

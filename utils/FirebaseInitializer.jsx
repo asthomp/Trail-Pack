@@ -1,13 +1,11 @@
-// Import the functions you need from the SDKs you need
+import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-import { getAuth } from "firebase/auth";
+import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import React, { useEffect } from "react";
 import { View } from "react-native";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// This key is protected by Firebase Security rules and application quotas.
+// https://firebase.google.com/docs/projects/api-keys#apply-restrictions
 const firebaseConfig = {
   apiKey: "AIzaSyD3FxNN1giqGjiqe8SfasrzFDeJNz1YyXg",
   authDomain: "trail-pack-400523.firebaseapp.com",
@@ -21,7 +19,9 @@ const firebaseConfig = {
 export default function FirebaseInitializer() {
   useEffect(() => {
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth();
+    const auth = initializeAuth(app, {
+      persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+    });
   }, []);
   return <View />;
 }

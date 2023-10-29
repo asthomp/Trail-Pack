@@ -1,20 +1,20 @@
 import { Link, router } from "expo-router";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
 import { View, StyleSheet } from "react-native";
-import { Button, Card } from "react-native-paper";
+import { Button, Card, Text } from "react-native-paper";
 import { MD2DarkTheme as theme } from "react-native-paper/src";
 
-import SecureTextInput from "../components/SecureTextInput";
-
-export default function Login() {
+import LinkButton from "../views/LinkButton";
+import SecureTextInput from "../views/SecureTextInput";
+export default function Signup() {
   const [email, setEmail] = useState({ value: "", error: "" });
   const [password, setPassword] = useState({ value: "", error: "" });
 
   return (
-    <View style={style.loginContainer}>
-      <Card style={style.loginCard}>
-        <Card.Title title="Login" />
+    <View style={style.signupContainer}>
+      <Card style={style.signupCard}>
+        <Card.Title title="Signup" />
         <Card.Content>
           <SecureTextInput
             label="Email"
@@ -42,24 +42,24 @@ export default function Login() {
             mode="contained"
             onPress={() => {
               const auth = getAuth();
-              signInWithEmailAndPassword(auth, email.value, password.value)
+              createUserWithEmailAndPassword(auth, email.value, password.value)
                 .then((userCredential) => {
-                  // Signed in
+                  // Signed up
                   const user = userCredential.user;
                   router.push("/");
                 })
                 .catch((error) => {
                   const errorCode = error.code;
                   const errorMessage = error.message;
-                  console.log(error.message);
+                  console.log(errorMessage);
                 });
             }}
           >
-            Login
+            Signup
           </Button>
         </Card.Content>
         <Card.Actions>
-          <Link href="/signup">Signup</Link>
+          <Link href="/">Login</Link>
         </Card.Actions>
       </Card>
     </View>
@@ -67,12 +67,12 @@ export default function Login() {
 }
 
 const style = StyleSheet.create({
-  loginContainer: {
+  signupContainer: {
     flexGrow: 1,
     alignItems: "center",
     justifyContent: "center",
   },
-  loginCard: {
+  signupCard: {
     width: "80%",
   },
   button: {

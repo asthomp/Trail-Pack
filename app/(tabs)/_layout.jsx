@@ -3,7 +3,7 @@ import { Tabs } from "expo-router";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import NavBar from "../../components/NavBar";
+import NavBar from "../../views/NavBar";
 
 //Pushes the Landing page onto the navigation stack.
 export const unstable_settings = {

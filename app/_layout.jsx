@@ -1,42 +1,11 @@
-import {
-  DarkTheme as NavigationDarkTheme,
-  DefaultTheme as NavigationDefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
+import { ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { useColorScheme } from "react-native";
-import {
-  adaptNavigationTheme,
-  MD3DarkTheme,
-  MD3LightTheme,
-  PaperProvider,
-} from "react-native-paper";
+import { PaperProvider } from "react-native-paper";
 
-import FirebaseInitializer from "../components/FirebaseInitializer";
-
-// Converts between Paper theming and Expo-Router theming; navigation components are Expo-Router and
-// aesthetic components are Paper.
-const { LightTheme, DarkTheme } = adaptNavigationTheme({
-  reactNavigationLight: NavigationDefaultTheme,
-  reactNavigationDark: NavigationDarkTheme,
-});
-
-const CombinedLightTheme = {
-  ...MD3LightTheme,
-  ...LightTheme,
-  colors: {
-    ...MD3LightTheme.colors,
-    ...LightTheme.colors,
-  },
-};
-const CombinedDarkTheme = {
-  ...MD3DarkTheme,
-  ...DarkTheme,
-  colors: {
-    ...MD3DarkTheme.colors,
-    ...DarkTheme.colors,
-  },
-};
+import FirebaseInitializer from "../utils/FirebaseInitializer";
+import convertTheme from "../utils/convertTheme";
+import { TPTheme } from "../utils/theme";
 
 //Pushes the Landing page onto the navigation stack.
 export const unstable_settings = {
@@ -44,13 +13,17 @@ export const unstable_settings = {
 };
 
 export default function MainLayout() {
+  // Identifies Dark vs. Light mode and builds a combined theme for both
+  // Expo-Router and Paper.
   const scheme = useColorScheme();
-  const theme = scheme === "light" ? CombinedLightTheme : CombinedDarkTheme;
+  const theme =
+    scheme === "light"
+      ? convertTheme(TPTheme.light)
+      : convertTheme(TPTheme.dark);
   return (
     <ThemeProvider value={theme}>
       <PaperProvider theme={theme}>
         <FirebaseInitializer />
-
         <Stack
           screenOptions={{
             headerShown: false,

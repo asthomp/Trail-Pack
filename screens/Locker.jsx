@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import { Text, List, Divider, Chip } from "react-native-paper";
 
-import AddFAB from "../components/AddFAB";
-import CategoryIcon from "../components/CategoryIcon";
-import Loading from "../components/Loading";
 import Database from "../utils/database";
+import AddFAB from "../views/AddFAB";
+import CategoryIcon from "../views/CategoryIcon";
+import Loading from "../views/Loading";
 export default function Locker() {
   const [data, setData] = useState(null);
   const [itemSort, setItemSort] = React.useState("item");
@@ -110,6 +110,7 @@ const style = StyleSheet.create({
     justifyContent: "flex-start",
   },
   lockerSortingMenu: {
+    margin: 20,
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",

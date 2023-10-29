@@ -3,7 +3,7 @@ import { View, StyleSheet } from "react-native";
 import { Card, Text } from "react-native-paper";
 
 import strings from "../assets/strings.json";
-import LinkButton from "../components/LinkButton";
+import LinkButton from "../views/LinkButton";
 export default function Profile() {
   return (
     <View style={style.profileContainer}>
