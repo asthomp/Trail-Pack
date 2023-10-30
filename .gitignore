@@ -41,3 +41,6 @@ yarn-error.*
 /.idea/jsLinters/eslint.xml
 /.firebase/hosting.ZGlzdA.cache
 /.idea/inspectionProfiles/Project_Default.xml
+
+/utils/sek/
+/utils/sek/trail-pack-400523-firebase-adminsdk-ev385-5bd235b55b.json

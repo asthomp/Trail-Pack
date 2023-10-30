@@ -1,98 +1,34 @@
-import { Entypo, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import {
-  DarkTheme as NavigationDarkTheme,
-  DefaultTheme as NavigationDefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
-import { Tabs } from "expo-router";
+import { ThemeProvider } from "@react-navigation/native";
+import { Stack } from "expo-router";
 import { useColorScheme } from "react-native";
-import {
-  adaptNavigationTheme,
-  MD3DarkTheme,
-  MD3LightTheme,
-  PaperProvider,
-} from "react-native-paper";
+import { PaperProvider } from "react-native-paper";
 
-import NavBar from "../components/NavBar";
+import FirebaseInitializer from "../utils/FirebaseInitializer";
+import convertTheme from "../utils/convertTheme";
+import { TPTheme } from "../utils/theme";
 
+//Pushes the Landing page onto the navigation stack.
 export const unstable_settings = {
   initialRouteName: "index",
 };
 
-const { LightTheme, DarkTheme } = adaptNavigationTheme({
-  reactNavigationLight: NavigationDefaultTheme,
-  reactNavigationDark: NavigationDarkTheme,
-});
-
-const CombinedLightTheme = {
-  ...MD3LightTheme,
-  ...LightTheme,
-  colors: {
-    ...MD3LightTheme.colors,
-    ...LightTheme.colors,
-  },
-};
-const CombinedDarkTheme = {
-  ...MD3DarkTheme,
-  ...DarkTheme,
-  colors: {
-    ...MD3DarkTheme.colors,
-    ...DarkTheme.colors,
-  },
-};
-
 export default function MainLayout() {
+  // Identifies Dark vs. Light mode and builds a combined theme for both
+  // Expo-Router and Paper.
   const scheme = useColorScheme();
-
-  const theme = scheme === "light" ? CombinedLightTheme : CombinedDarkTheme;
+  const theme =
+    scheme === "light"
+      ? convertTheme(TPTheme.light)
+      : convertTheme(TPTheme.dark);
   return (
     <ThemeProvider value={theme}>
       <PaperProvider theme={theme}>
-        <Tabs
+        <FirebaseInitializer />
+        <Stack
           screenOptions={{
-            header: () => {
-              return <NavBar />;
-            },
+            headerShown: false,
           }}
-        >
-          {/* Visible Routes */}
-          <Tabs.Screen
-            name="index"
-            options={{
-              title: "Home",
-              tabBarIcon: ({ color, size }) => (
-                <Ionicons name="ios-home" size={size} color={color} />
-              ),
-            }}
-          />
-
-          <Tabs.Screen
-            name="pack/index"
-            options={{
-              title: "My Pack",
-              tabBarIcon: ({ color, size }) => (
-                <MaterialIcons name="backpack" size={size} color={color} />
-              ),
-            }}
-          />
-
-          <Tabs.Screen
-            name="locker/index"
-            options={{
-              title: "My Gear",
-              tabBarIcon: ({ color, size }) => (
-                <Entypo name="compass" size={size} color={color} />
-              ),
-            }}
-          />
-          {/* Hidden Routes */}
-          <Tabs.Screen
-            name="profile"
-            options={{
-              href: null,
-            }}
-          />
-        </Tabs>
+        />
       </PaperProvider>
     </ThemeProvider>
   );
