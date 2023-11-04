@@ -1,21 +1,41 @@
+import { router, useLocalSearchParams } from "expo-router";
+import { getAuth } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
-import { Text, List, Divider, Chip } from "react-native-paper";
+import { Text, List, Divider, Chip, FAB } from "react-native-paper";
 
 import Database from "../utils/database";
-import AddFAB from "../views/AddFAB";
 import CategoryIcon from "../views/CategoryIcon";
 import Loading from "../views/Loading";
 export default function Locker() {
   const [data, setData] = useState(null);
-  const [itemSort, setItemSort] = React.useState("item");
+  const [orderBy, setOrderBy] = useState("time-stamp");
+  const [order, setOrder] = useState("asc");
 
   useEffect(() => {
+    const user = getAuth();
     const db = new Database();
-    db.getItems(1).then((x) => {
+    db.getItems(user.currentUser.uid).then((x) => {
       setData(x);
     });
   }, []);
+
+  // Sorting Comparators
+  function sortingComparator(a, b) {
+    if (b < a) {
+      return -1;
+    }
+    if (b > a) {
+      return 1;
+    }
+    return 0;
+  }
+
+  function getComparator(order, orderBy) {
+    return order === "desc"
+      ? (a, b) => sortingComparator(a, b)
+      : (a, b) => -sortingComparator(a, b);
+  }
   return (
     <View style={style.lockerContainer}>
       {!data ? (
@@ -26,9 +46,9 @@ export default function Locker() {
             <Chip
               style={style.lockerSortingChip}
               showSelectedOverlay
-              selected={itemSort === "item"}
+              selected={orderBy === "product"}
               onPress={() => {
-                setItemSort("item");
+                setOrderBy("product");
               }}
             >
               Item
@@ -36,9 +56,9 @@ export default function Locker() {
             <Chip
               style={style.lockerSortingChip}
               showSelectedOverlay
-              selected={itemSort === "category"}
+              selected={orderBy === "category"}
               onPress={() => {
-                setItemSort("category");
+                setOrderBy("category");
               }}
             >
               Category
@@ -46,9 +66,9 @@ export default function Locker() {
             <Chip
               style={style.lockerSortingChip}
               showSelectedOverlay
-              selected={itemSort === "weight"}
+              selected={order === "weight"}
               onPress={() => {
-                setItemSort("weight");
+                setOrderBy("weight");
               }}
             >
               Weight
@@ -64,8 +84,8 @@ export default function Locker() {
                 alignItems: "stretch",
               }}
             >
-              {data.map &&
-                data.map((x) => {
+              {data.length > 0 ? (
+                data.sort(getComparator(order, orderBy)).map((x) => {
                   return (
                     <View key={"Item ID #" + x.itemID + "'s View''"}>
                       <List.Item
@@ -93,10 +113,22 @@ export default function Locker() {
                       <Divider key={"Item ID #" + x.itemID + "'s Divider'"} />
                     </View>
                   );
-                })}
+                })
+              ) : (
+                <Text>No Items Found</Text>
+              )}
             </List.Section>
           </ScrollView>
-          <AddFAB text="Add an Item" />
+          <View style={style.addFAB}>
+            <FAB
+              icon="plus"
+              size={20}
+              accessibilityLabel="Add an Item"
+              onPress={() => {
+                router.push("/locker/add");
+              }}
+            />
+          </View>
         </>
       )}
     </View>
@@ -119,5 +151,13 @@ const style = StyleSheet.create({
     marginRight: 10,
     marginLeft: 10,
     flexGrow: 1,
+  },
+  addFAB: {
+    position: "absolute",
+    margin: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    right: 0,
+    bottom: 0,
   },
 });

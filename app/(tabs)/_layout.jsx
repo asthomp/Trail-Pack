@@ -65,6 +65,13 @@ export default function TabsLayout() {
           href: null,
         }}
       />
+
+      <Tabs.Screen
+        name="locker/add"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
