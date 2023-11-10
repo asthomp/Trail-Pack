@@ -2,80 +2,121 @@ import { router, useLocalSearchParams } from "expo-router";
 import { getAuth } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
-import { Text, List, Divider, Chip, FAB } from "react-native-paper";
+import {
+  Text,
+  List,
+  Divider,
+  Chip,
+  FAB,
+  SegmentedButtons,
+  IconButton,
+  Icon,
+  Button,
+} from "react-native-paper";
 
 import Database from "../utils/database";
 import CategoryIcon from "../views/CategoryIcon";
 import Loading from "../views/Loading";
 export default function Locker() {
   const [data, setData] = useState(null);
-  const [orderBy, setOrderBy] = useState("time-stamp");
+  const [orderBy, setOrderBy] = useState("timestamp");
   const [order, setOrder] = useState("asc");
 
   useEffect(() => {
     const user = getAuth();
     const db = new Database();
     db.getItems(user.currentUser.uid).then((x) => {
-      setData(x);
+      setData(sortArray(x, orderBy, order));
     });
   }, []);
 
-  // Sorting Comparators
-  function sortingComparator(a, b) {
-    if (b < a) {
-      return -1;
+  useEffect(() => {
+    if (data) {
+      setData(sortArray(data, orderBy, order));
     }
-    if (b > a) {
-      return 1;
-    }
-    return 0;
-  }
+  }, [order, orderBy]);
 
-  function getComparator(order, orderBy) {
-    return order === "desc"
-      ? (a, b) => sortingComparator(a, b)
-      : (a, b) => -sortingComparator(a, b);
-  }
+  const getIcon = function (type) {
+    const icon = null;
+    if (orderBy === type) {
+      if (order === "asc") {
+        return "chevron-up";
+      } else {
+        return "chevron-down";
+      }
+    }
+  };
+
   return (
     <View style={style.lockerContainer}>
       {!data ? (
         <Loading />
       ) : (
         <>
-          <View style={style.lockerSortingMenu}>
-            <Chip
-              style={style.lockerSortingChip}
-              showSelectedOverlay
-              selected={orderBy === "product"}
-              onPress={() => {
-                setOrderBy("product");
+          <View
+            style={{
+              marginLeft: 5,
+              marginRight: 5,
+              marginTop: 10,
+              marginBottom: 10,
+            }}
+          >
+            <SegmentedButtons
+              value={orderBy}
+              onValueChange={(value) => {
+                if (value === orderBy) {
+                  if (order === "asc") {
+                    setOrder("desc");
+                  } else {
+                    setOrder("asc");
+                  }
+                } else {
+                  if (value === "weight") {
+                    setOrder("desc");
+                  } else {
+                    setOrder("asc");
+                  }
+                  setOrderBy(value);
+                }
               }}
-            >
-              Item
-            </Chip>
-            <Chip
-              style={style.lockerSortingChip}
-              showSelectedOverlay
-              selected={orderBy === "category"}
-              onPress={() => {
-                setOrderBy("category");
-              }}
-            >
-              Category
-            </Chip>
-            <Chip
-              style={style.lockerSortingChip}
-              showSelectedOverlay
-              selected={order === "weight"}
-              onPress={() => {
-                setOrderBy("weight");
-              }}
-            >
-              Weight
-            </Chip>
+              density="medium"
+              buttons={[
+                {
+                  value: "product",
+                  label: "Item",
+                  icon: getIcon("product"),
+                },
+                {
+                  value: "category",
+                  label: "Category",
+                  icon: getIcon("category"),
+                },
+                { value: "weight", label: "Weight", icon: getIcon("weight") },
+                {
+                  value: "timestamp",
+                  label: "Recent",
+                },
+              ]}
+            />
           </View>
 
           <ScrollView>
+            <Chip icon="information">
+              {orderBy === "timestamp" && (
+                <Text>Displaying the most recently added items</Text>
+              )}
+              {orderBy === "product" && (
+                <Text>Sorted alphabetically by product name</Text>
+              )}
+              {orderBy === "category" && <Text>Sorted by product type</Text>}
+              {orderBy === "weight" && <Text>Sorted by weight from </Text>}
+              {orderBy === "weight" && order === "asc" && (
+                <Text>lightest to heaviest</Text>
+              )}
+              {orderBy === "weight" && order === "desc" && (
+                <Text>heaviest to lightest</Text>
+              )}
+            </Chip>
             <List.Section
               style={{
                 flexDirection: "column",
@@ -85,19 +126,20 @@ export default function Locker() {
               }}
             >
               {data.length > 0 ? (
-                data.sort(getComparator(order, orderBy)).map((x) => {
+                data.map((x) => {
                   return (
-                    <View key={"Item ID #" + x.itemID + "'s View''"}>
+                    <View key={"ID#" + x.itemID + "-section''"}>
                       <List.Item
-                        key={"Item ID #" + x.itemID + "'s Block'"}
                         title={x.product}
-                        description={x.category}
+                        description={
+                          x.brand ? x.brand + "\n" + x.category : x.category
+                        }
                         left={(props) => (
                           <List.Icon
                             {...props}
                             icon={({ size, color }) => (
                               <CategoryIcon
-                                category={x.category}
+                                category={x.categoryIcon}
                                 size={size - 5}
                                 color={color}
                               />
@@ -105,12 +147,12 @@ export default function Locker() {
                           />
                         )}
                         right={(props) => (
-                          <Text key={"Item ID #" + x.itemID + "'s Weight'"}>
-                            {x.weight} {x.weightUnit}
+                          <Text>
+                            {x.displayWeight} {x.displayWeightUnit}
                           </Text>
                         )}
                       />
-                      <Divider key={"Item ID #" + x.itemID + "'s Divider'"} />
+                      <Divider />
                     </View>
                   );
                 })
@@ -141,12 +183,11 @@ const style = StyleSheet.create({
     alignItems: "stretch",
     justifyContent: "flex-start",
   },
-  lockerSortingMenu: {
-    margin: 20,
+  lockerHeader: {
+    display: "flex",
     flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
   },
+
   lockerSortingChip: {
     marginRight: 10,
     marginLeft: 10,
@@ -160,4 +201,64 @@ const style = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+  rightHelpButton: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
 });
+
+// Sorting Comparators
+function sortingComparator(a, b) {
+  if (b < a) {
+    return -1;
+  }
+  if (b > a) {
+    return 1;
+  }
+  return 0;
+}
+
+function getComparator(order, orderBy) {
+  return order === "desc"
+    ? (a, b) => sortingComparator(a, b)
+    : (a, b) => -sortingComparator(a, b);
+}
+
+function sortArray(array, orderBy, order) {
+  const compareTime = (a, b) =>
+    a.timestamp.nanoseconds - b.timestamp.nanoseconds;
+
+  let comparator = undefined;
+  switch (orderBy) {
+    case "product":
+    default:
+      if (order === "asc") {
+        comparator = (a, b) => a.product.localeCompare(b.product);
+      } else {
+        comparator = (a, b) => -a.product.localeCompare(b.product);
+      }
+      break;
+    case "category":
+      if (order === "asc") {
+        comparator = (a, b) => a.category.localeCompare(b.category);
+      } else {
+        comparator = (a, b) => -a.category.localeCompare(b.category);
+      }
+      break;
+    case "weight":
+      if (order === "asc") {
+        comparator = (a, b) => a.weight - b.weight;
+      } else {
+        comparator = (a, b) => -(a.weight - b.weight);
+      }
+      break;
+    case "timestamp":
+      comparator = (a, b) =>
+        -(a.timestamp.nanoseconds - b.timestamp.nanoseconds);
+      break;
+  }
+
+  const newArray = Array.from(array);
+  return newArray.sort(comparator);
+}

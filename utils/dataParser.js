@@ -187,4 +187,21 @@ const weightUnitParser = function (unit) {
   }
 };
 
-export { categoryIconParser, weightUnitParser };
+const convertWeight = function (value, unit) {
+  if (
+    unit === "pounds" ||
+    unit === "pound" ||
+    unit === "lb" ||
+    unit === "lbs"
+  ) {
+    return Math.round((value * 16 + Number.EPSILON) * 100) / 100;
+  }
+
+  if (unit === "grams" || unit === "gram" || unit === "g") {
+    return Math.round((value / 28.35 + Number.EPSILON) * 100) / 100;
+  }
+
+  return value;
+};
+
+export { categoryIconParser, weightUnitParser, convertWeight };

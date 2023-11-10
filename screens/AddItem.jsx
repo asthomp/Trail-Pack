@@ -1,11 +1,10 @@
+import { Entypo } from "@expo/vector-icons";
 import axios from "axios";
-import { router, useLocalSearchParams } from "expo-router";
 import { getAuth } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import { readString } from "react-native-csv";
 import {
-  Icon,
   Avatar,
   Button,
   Card,
@@ -14,281 +13,533 @@ import {
   Text,
   TextInput,
   HelperText,
+  Menu,
+  Divider,
 } from "react-native-paper";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { categoryIconParser, weightUnitParser } from "../utils/dataParser";
+import {
+  categoryIconParser,
+  weightUnitParser,
+  convertWeight,
+} from "../utils/dataParser";
 import Database from "../utils/database";
+import BulkImport from "../views/BulkImport";
+import CategoryIcon from "../views/CategoryIcon";
+import URLFormInput from "../views/URLFormInput";
 
 export default function AddItem() {
   const [db, setDB] = useState(null);
-  const [bulk, setBulk] = useState(false);
-  const [LPURL, setLPURL] = useState("");
-  const [errorLPURL, setErrorLPURL] = useState(false);
-  const [errorMessageLPURL, setErrorMessageLPURL] = useState("");
-  const [productName, setProductName] = useState("");
-  const [brandName, setBrandName] = useState("");
-  const [category, setCategory] = useState("Shelter");
-  const [weight, setWeight] = useState("0 lbs");
-  const [price, setPrice] = useState("$0.00");
+  const [user, setUser] = useState(null);
+  const [singleMode, setSingleMode] = useState(true);
+
+  // Bulk Import
+  const [bulk, setBulk] = useState({ url: "", visible: false, error: null });
+
+  // Single Item Addition
+  const [productName, setProductName] = useState({ value: "", error: null });
+  const [brand, setBrand] = useState({ value: "", error: null });
+  const [category, setCategory] = useState({
+    value: "Packing & Storage",
+    custom: false,
+    error: null,
+    visible: false,
+    icon: "storage",
+    iconVisible: false,
+  });
+  const [weight, setWeight] = useState({
+    weight: null,
+    weightMenuVisible: false,
+    weightUnit: "oz",
+    weightUnitMenuVisible: false,
+    error: null,
+  });
   const [wearable, setWearable] = useState(false);
   const [consumable, setConsumable] = useState(false);
-  const [url, setURL] = useState("");
-  const [user, setUser] = useState(null);
+  const [description, setDescription] = useState({ value: "", error: null });
+  const [price, setPrice] = useState({ value: "", unit: "$", error: null });
+  const [url, setURL] = useState({ value: "", error: null });
 
   useEffect(() => {
     setUser(getAuth().currentUser.uid);
     setDB(new Database());
   }, []);
 
-  const importLighterPackData = async function () {
+  const addSingleItem = async function () {
     try {
-      const response = await axios.get(
-        "https://lighterpack.com/csv/" + LPURL.match(/.*\/(.*)/)[1],
-      );
-      try {
-        const data = readString(response.data, {
-          header: true,
-          dynamicTyping: true,
-        }).data;
-
-        for (let i = 0; i < data.length; i++) {
-          try {
-            await db.postItem({
-              product: data[i]["Item Name"],
-              brand: null,
-              category: data[i]["Category"],
-              categoryIcon: categoryIconParser(data[i]["Category"]),
-              weight: data[i]["weight"],
-              weightUnit: weightUnitParser(data[i]["unit"]),
-              price: data[i]["price"],
-              priceUnit: "$",
-              link: data[i]["url"],
-              description: data[i]["desc"],
-              consumable: data[i]["consumable"] !== null,
-              nutrition: null,
-              wearable: data[i]["worn"] !== null,
-              userID: user,
-              quantity: data[i]["qty"],
-            });
-          } catch (error) {
-            console.log(JSON.stringify(error));
-            setErrorLPURL(true);
-            setErrorMessageLPURL(
-              "500: Failed to Post " +
-                data[i]["Item Name"] +
-                " to the database.",
-            );
-          }
-        }
-      } catch (error) {
-        setErrorLPURL(true);
-        setErrorMessageLPURL("500: Failed to Parse List :(");
-      }
-    } catch (error) {
-      if (
-        error.response.status === 400 &&
-        error.response.data === "Invalid list specified."
-      ) {
-        setErrorLPURL(true);
-        setErrorMessageLPURL("404: List Not Found (Is the URL correct?)");
+      let formattedURL;
+      // If they didn't include a protocol, add it.
+      if (url.value.substring(0, 4) !== "http") {
+        formattedURL = new url("https://" + url.value);
       } else {
-        setErrorLPURL(true);
-        setErrorMessageLPURL("400: Bad Request");
+        formattedURL = new url(url.value);
       }
+      console.log(formattedURL);
+    } catch (error) {
+      setURL({ ...url, error: "Please enter a valid URL" });
     }
   };
 
-  const validLighterPackURL = function () {
-    return (
-      LPURL.substring(0, 24) === "https://lighterpack.com/" ||
-      LPURL.substring(0, 23) === "http://lighterpack.com/" ||
-      LPURL.substring(0, 28) === "https://www.lighterpack.com/" ||
-      LPURL.substring(0, 27) === "http://www.lighterpack.com/"
-    );
-  };
-
+  const categories = [
+    { title: "Bear Aware", icon: "bear" },
+    { title: "Books & Guides", icon: "book" },
+    { title: "Bug Protection", icon: "bug" },
+    { title: "Clothing", icon: "clothing" },
+    { title: "Dental", icon: "dental" },
+    { title: "Electronics", icon: "electronics" },
+    { title: "Fire Starting", icon: "fire" },
+    { title: "Food", icon: "food" },
+    { title: "Hydration", icon: "water" },
+    { title: "Hygiene", icon: "toiletpaper" },
+    { title: "Light", icon: "light" },
+    { title: "Medical", icon: "medical" },
+    { title: "Mountaineering", icon: "mountain" },
+    { title: "Navigation", icon: "compass" },
+    { title: "Packing & Storage", icon: "storage" },
+    { title: "Photography", icon: "camera" },
+    { title: "Documents & ID", icon: "wallet" },
+    { title: "Shelter", icon: "tent" },
+    { title: "Sleeping", icon: "sleep" },
+    { title: "Snow Gear", icon: "snow" },
+    { title: "Sun Safety", icon: "sun" },
+    { title: "Tools", icon: "tools" },
+    { title: "Other", icon: "folder" },
+  ];
   return (
     <ScrollView>
-      <Card style={style.addItemCard}>
-        <Card.Title
-          title={!bulk ? "Add New Item" : "Add Bulk Items"}
-          left={(props) => <Avatar.Icon {...props} icon="folder" />}
-          right={(props) =>
-            !bulk ? (
-              <Button
-                mode="text"
-                onPress={() => {
-                  if (!bulk) {
-                    setBulk(true);
-                  } else {
-                    setBulk(false);
-                  }
-                }}
-                style={{ marginRight: 20 }}
-              >
-                Bulk Import
-              </Button>
-            ) : (
-              <IconButton
-                icon="chevron-left"
-                mode="contained"
-                onPress={() => {
-                  setBulk(false);
-                }}
-                style={{ marginRight: 20 }}
-              />
-            )
-          }
-        />
-        {!bulk ? (
-          <>
-            <Card.Content>
-              <TextInput
-                style={style.formTextInput}
-                label="Product Name"
-                value={productName}
-                dense
-                onChangeText={(text) => {
-                  setProductName(text);
-                }}
-              />
-              <TextInput
-                style={style.formTextInput}
-                dense
-                inputMode="text"
-                label="Brand"
-                value={brandName}
-                onChangeText={(text) => {
-                  setBrandName(text);
-                }}
-              />
-              <TextInput
-                style={style.formTextInput}
-                dense
-                label="Category"
-                value={category}
-                onChangeText={(text) => {
-                  setCategory(text);
-                }}
-              />
-              <TextInput
-                style={style.formTextInput}
-                dense
-                inputMode="url"
-                label="Link"
-                value={url}
-                onChangeText={(text) => {
-                  setURL(text);
-                }}
-              />
-              <View style={style.addItemNumericInputs}>
-                <TextInput
-                  style={style.formTextInput}
-                  dense
-                  inputMode="numeric"
-                  label="Weight"
-                  value={weight}
-                  onChangeText={(x) => {
-                    setWeight(weight);
-                  }}
-                />
-                <TextInput
-                  style={style.formTextInput}
-                  dense
-                  inputMode="numeric"
-                  label="Price"
-                  value={price}
-                  onChangeText={(x) => {
-                    setWeight(setPrice);
-                  }}
-                />
-              </View>
 
-              <View style={style.addItemRowToggle}>
-                <Text>
-                  Wearable?
-                  <Switch
-                    value={wearable}
-                    onValueChange={() => {
-                      wearable ? setWearable(false) : setWearable(true);
-                    }}
-                  />
-                </Text>
-                <Text>
-                  Consumable?
-                  <Switch
-                    value={consumable}
-                    onValueChange={() => {
-                      consumable ? setConsumable(false) : setConsumable(true);
-                    }}
-                  />
-                </Text>
-              </View>
-            </Card.Content>
-            <Card.Actions>
-              <IconButton
-                icon="content-save"
-                mode="contained"
-                onPress={() => {
-                  const newItem = {
-                    product: productName,
-                    brand: brandName === "" ? null : brandName,
-                    category,
-                    weight,
-                    weightUnit: null,
-                    price: price.substring(1, price.length),
-                    priceUnit: "$",
-                    link: url,
-                    description: null,
-                    consumable,
-                    wearable,
-                    userID: user,
-                    quantity: 1,
-                  };
-                  console.log(newItem);
-                }}
-              />
-            </Card.Actions>
-          </>
-        ) : (
-          <>
-            <Card.Content>
-              <TextInput
-                label="LighterPack Share URL"
-                editable
-                value={LPURL}
-                error={errorLPURL}
-                onChangeText={(text) => {
-                  setErrorLPURL(false);
-                  setErrorMessageLPURL("");
-                  setLPURL(text);
-                }}
-              />
-              <HelperText type="error" visible={errorLPURL}>
-                {errorMessageLPURL}
-              </HelperText>
-            </Card.Content>
-            <Card.Actions>
-              <Button
-                mode="contained"
-                style={{ margin: 10 }}
-                onPress={() => {
-                  if (validLighterPackURL()) {
-                    importLighterPackData().then(
-                      !errorLPURL ? router.push("/locker") : null,
-                    );
-                  } else {
-                    setErrorLPURL(true);
-                    setErrorMessageLPURL("Invalid LighterPack URL");
-                  }
-                }}
-              >
-                Submit
-              </Button>
-            </Card.Actions>
-          </>
-        )}
-      </Card>
+
+{/*    //   <Card style={style.addItemCard}>
+
+
+    //     <Card.Title*/}
+    //       title={!bulk ? "Add New Item" : "Add Bulk Items"}
+    //       left={(props) => <Avatar.Icon {...props} icon="folder" />}
+    //       right={(props) =>
+    //         !bulk ? (
+    //           <Button
+    //             mode="text"
+    //             onPress={() => {
+    //               if (!bulk) {
+    //                 setBulk(true);
+    //               } else {
+    //                 setBulk(false);
+    //               }
+    //             }}
+    //             style={{ marginRight: 20 }}
+    //           >
+    //             Bulk Import
+    //           </Button>
+    //         ) : (
+    //           <IconButton
+    //             icon="chevron-left"
+    //             mode="contained"
+    //             onPress={() => {
+    //               setBulk(false);
+    //             }}
+    //             style={{ marginRight: 20 }}
+    //           />
+    //         )
+    //       }
+    //     />
+    //     {!bulk ? (
+    //       <Card>
+    //         <Card.Content>
+    //           {/* PRODUCT NAME */}
+    //           <View>
+    //             <TextInput
+    //               mode="outlined"
+    //               label="Product Name"
+    //               value={productName.value}
+    //               error={!!productName.error}
+    //               onChangeText={(x) => {
+    //                 if (x.length > 50) {
+    //                   setProductName({
+    //                     value: x,
+    //                     error: "Please use less than 50 characters",
+    //                   });
+    //                 } else {
+    //                   setProductName({ value: x, error: null });
+    //                 }
+    //               }}
+    //             />
+    //             <HelperText
+    //               type="error"
+    //               padding="none"
+    //               visible={!!productName.error}
+    //             >
+    //               {productName.error}
+    //             </HelperText>
+    //           </View>
+    //
+    //           {/* CATEGORY ICON & CATEGORY */}
+    //           <Divider style={style.divider} />
+    //           <View style={style.formCategoryRow}>
+    //             <Menu
+    //               visible={category.iconVisible}
+    //               onDismiss={() =>
+    //                 setCategory({ ...category, iconVisible: false })
+    //               }
+    //               anchorPosition="bottom"
+    //               anchor={
+    //                 <IconButton
+    //                   mode="contained-tonal"
+    //                   icon={({ size, color }) => {
+    //                     if (
+    //                       category.custom === true &&
+    //                       category.icon === null
+    //                     ) {
+    //                       return (
+    //                         <Entypo
+    //                           name="select-arrows"
+    //                           size={size}
+    //                           color={color}
+    //                         />
+    //                       );
+    //                     } else {
+    //                       return (
+    //                         <CategoryIcon
+    //                           category={category.icon}
+    //                           size={size}
+    //                           color={color}
+    //                         />
+    //                       );
+    //                     }
+    //                   }}
+    //                   onPress={() =>
+    //                     setCategory({
+    //                       ...category,
+    //                       iconVisible: true,
+    //                     })
+    //                   }
+    //                 />
+    //               }
+    //             >
+    //               {categories.map((x) => {
+    //                 return (
+    //                   <View key={"Category Icon Selection =" + x.title}>
+    //                     <Menu.Item
+    //                       title={x.icon}
+    //                       onPress={() => {
+    //                         setCategory({
+    //                           ...category,
+    //                           icon: x.icon,
+    //                           iconVisible: false,
+    //                         });
+    //                       }}
+    //                       leadingIcon={({ color }) => (
+    //                         <CategoryIcon
+    //                           category={x.icon}
+    //                           size={20}
+    //                           color={color}
+    //                         />
+    //                       )}
+    //                     />
+    //                     <Divider />
+    //                   </View>
+    //                 );
+    //               })}
+    //             </Menu>
+    //
+    //             <TextInput
+    //               style={{ flex: 1, marginLeft: 10 }}
+    //               mode="outlined"
+    //               label="Category"
+    //               editable
+    //               value={category.value}
+    //               onChangeText={(x) => {
+    //                 if (category.custom === false) {
+    //                   setCategory({
+    //                     ...category,
+    //                     value: x,
+    //                     icon: null,
+    //                     custom: true,
+    //                   });
+    //                 } else {
+    //                   setCategory({
+    //                     ...category,
+    //                     value: x,
+    //                     custom: true,
+    //                   });
+    //                 }
+    //               }}
+    //               right={
+    //                 <TextInput.Icon
+    //                   icon={category.visible ? "menu-up" : "menu-down"}
+    //                   onPress={() =>
+    //                     category.visible
+    //                       ? setCategory({ ...category, visible: false })
+    //                       : setCategory({ ...category, visible: true })
+    //                   }
+    //                 />
+    //               }
+    //             />
+    //           </View>
+    //           <View
+    //             style={{ flexDirection: "row", justifyContent: "flex-end" }}
+    //           >
+    //             <Menu
+    //               visible={category.visible}
+    //               onDismiss={() => setCategory({ ...category, visible: false })}
+    //               anchorPosition="bottom"
+    //               anchor={
+    //                 <Divider
+    //                   style={{
+    //                     width: 1,
+    //                     height: 1,
+    //                   }}
+    //                 />
+    //               }
+    //             >
+    //               {categories.map((x) => {
+    //                 return (
+    //                   <View key={"Category Selection Menu =" + x.title}>
+    //                     <Menu.Item
+    //                       onPress={() => {
+    //                         setCategory({
+    //                           ...category,
+    //                           value: x.title,
+    //                           icon: x.icon,
+    //                           visible: false,
+    //                           custom: false,
+    //                         });
+    //                       }}
+    //                       title={x.title}
+    //                       leadingIcon={({ size, color }) => (
+    //                         <CategoryIcon
+    //                           category={x.icon}
+    //                           size={20}
+    //                           color={color}
+    //                         />
+    //                       )}
+    //                     />
+    //                   </View>
+    //                 );
+    //               })}
+    //             </Menu>
+    //           </View>
+    //           <HelperText
+    //             type="info"
+    //             padding="none"
+    //             visible={category.custom === true}
+    //           >
+    //             You can customize your category name and icon
+    //           </HelperText>
+    //           <Divider style={style.divider} />
+    //
+    //           {/* DISPLAY WEIGHT & UNIT */}
+    //           <View style={style.formMultipleRow}>
+    //             <TextInput
+    //               style={{ flex: 1, marginRight: 10 }}
+    //               mode="outlined"
+    //               inputMode="numeric"
+    //               placeholder="0"
+    //               label="Weight"
+    //               value={weight.value}
+    //               error={!!weight.error}
+    //               onChangeText={(x) => {
+    //                 if (isNaN(+x.replace(/\s/g, ""))) {
+    //                   setWeight({
+    //                     ...weight,
+    //                     value: x,
+    //                     error: "Please enter a valid number.",
+    //                   });
+    //                 } else {
+    //                   setWeight({ ...weight, value: x, error: null });
+    //                 }
+    //               }}
+    //             />
+    //
+    //             <Menu
+    //               visible={weight.weightUnitMenuVisible}
+    //               onDismiss={() =>
+    //                 setWeight({ ...weight, weightUnitMenuVisible: false })
+    //               }
+    //               anchorPosition="bottom"
+    //               anchor={
+    //                 <TextInput
+    //                   mode="outlined"
+    //                   placeholder="oz"
+    //                   editable={false}
+    //                   label="Unit"
+    //                   value={weight.weightUnit}
+    //                   onChangeText={(x) => {
+    //                     setWeight({ ...weight, weightUnit: x });
+    //                   }}
+    //                   right={
+    //                     <TextInput.Icon
+    //                       icon={
+    //                         weight.weightUnitMenuVisible
+    //                           ? "menu-up"
+    //                           : "menu-down"
+    //                       }
+    //                       onPress={() =>
+    //                         weight.weightUnitMenuVisible
+    //                           ? setWeight({
+    //                               ...weight,
+    //                               weightUnitMenuVisible: false,
+    //                             })
+    //                           : setWeight({
+    //                               ...weight,
+    //                               weightUnitMenuVisible: true,
+    //                             })
+    //                       }
+    //                     />
+    //                   }
+    //                 />
+    //               }
+    //             >
+    //               <Menu.Item
+    //                 onPress={() => {
+    //                   setWeight({
+    //                     ...weight,
+    //                     weightUnit: "oz",
+    //                     weightUnitMenuVisible: false,
+    //                   });
+    //                 }}
+    //                 title="oz"
+    //               />
+    //               <Divider />
+    //               <Menu.Item
+    //                 onPress={() => {
+    //                   setWeight({
+    //                     ...weight,
+    //                     weightUnit: "lb",
+    //                     weightUnitMenuVisible: false,
+    //                   });
+    //                 }}
+    //                 title="lb"
+    //               />
+    //               <Divider />
+    //               <Menu.Item
+    //                 onPress={() => {
+    //                   setWeight({
+    //                     ...weight,
+    //                     weightUnit: "g",
+    //                     weightUnitMenuVisible: false,
+    //                   });
+    //                 }}
+    //                 title="g"
+    //               />
+    //             </Menu>
+    //           </View>
+    //           <HelperText type="error" padding="none" visible={!!weight.error}>
+    //             {weight.error}
+    //           </HelperText>
+    //           <Divider style={style.divider} />
+    //
+    //           {/* WEARABLE ITEM */}
+    //           <View style={style.formToggleRow}>
+    //             <Text variant="titleMedium">Wearable?</Text>
+    //             <Switch
+    //               value={wearable}
+    //               onValueChange={() => {
+    //                 wearable ? setWearable(false) : setWearable(true);
+    //               }}
+    //             />
+    //           </View>
+    //           <Divider style={style.divider} />
+    //
+    //           {/* CONSUMABLE ITEM */}
+    //           <View style={style.formToggleRow}>
+    //             <Text variant="titleMedium">Consumable?</Text>
+    //             <Switch
+    //               value={consumable}
+    //               onValueChange={() => {
+    //                 consumable ? setConsumable(false) : setConsumable(true);
+    //               }}
+    //             />
+    //           </View>
+    //
+    //           <Divider style={style.divider} />
+    //
+    //           {/* DESCRIPTION */}
+    //           <View>
+    //             <TextInput
+    //               mode="outlined"
+    //               label="Description"
+    //               value={description.value}
+    //               error={!!description.error}
+    //               onChangeText={(x) => {
+    //                 if (x.length > 100) {
+    //                   setDescription({
+    //                     value: x,
+    //                     error: "Please use less than 100 characters",
+    //                   });
+    //                 } else {
+    //                   setDescription({ value: x, error: null });
+    //                 }
+    //               }}
+    //             />
+    //             <HelperText type="error" visible={description.error}>
+    //               {description.error}
+    //             </HelperText>
+    //           </View>
+    //
+    //           {/* BRAND */}
+    //           <View>
+    //             <TextInput
+    //               mode="outlined"
+    //               label="Brand"
+    //               value={brand.value}
+    //               error={!!brand.error}
+    //               onChangeText={(x) => {
+    //                 if (x.length > 25) {
+    //                   setBrand({
+    //                     value: x,
+    //                     error: "Please use less than 25 characters",
+    //                   });
+    //                 } else {
+    //                   setBrand({ value: x, error: null });
+    //                 }
+    //               }}
+    //             />
+    //             <HelperText type="error" padding="none" visible={!!brand.error}>
+    //               {brand.error}
+    //             </HelperText>
+    //           </View>
+    //
+    //           {/* PRICE */}
+    //           <View>
+    //             <TextInput
+    //               mode="outlined"
+    //               label="Price"
+    //               placeholder="0"
+    //               value={price.value}
+    //               error={!!price.error}
+    //               onChangeText={(x) => {
+    //                 if (isNaN(+x.replace(/\s/g, ""))) {
+    //                   setPrice({
+    //                     ...price,
+    //                     value: x,
+    //                     error: "Please enter a valid number",
+    //                   });
+    //                 } else {
+    //                   setPrice({ ...price, value: x, error: null });
+    //                 }
+    //               }}
+    //               left={<TextInput.Affix text="$" />}
+    //             />
+    //             <HelperText type="error" visible={!!price.error}>
+    //               {price.error}
+    //             </HelperText>
+    //           </View>
+    //           <URLFormInput url={url} setURL={setURL()} />
+    //         </Card.Content>
+    //         <Card.Actions>
+    //           <Button
+    //             icon="content-save"
+    //             mode="contained"
+    //             onPress={addSingleItem}
+    //           >
+    //             Save
+    //           </Button>
+    //         </Card.Actions>
+    //       </Card>
+    //     ) : (
+          <BulkImport db={db} user={user} bulk={bulk} setBulk={setBulk} />
+      //   )}
+      // </Card>
     </ScrollView>
   );
 }
@@ -304,33 +555,35 @@ const style = StyleSheet.create({
     flexGrow: 1,
     margin: 10,
   },
-  addItemText: {
-    marginBottom: 20,
+  formSingleRow: {
+    flexDirection: "column",
+    flexGrow: 1,
+    paddingTop: 5,
+    paddingBottom: 5,
   },
-  formTextInput: {
-    marginBottom: 20,
-  },
-  addItemNumericInputs: {
+  formMultipleRow: {
     flexDirection: "row",
     flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "space-around",
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "green",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    paddingTop: 5,
+    paddingBottom: 5,
   },
-  addItemRowToggle: {
+  formCategoryRow: {
     flexDirection: "row",
     flexGrow: 1,
+    alignItems: "center",
     justifyContent: "center",
-    alignItems: "space-evenly",
-    marginBottom: 20,
-    paddingTop: 10,
-    paddingBottom: 10,
-    borderWidth: 1,
-    borderColor: "#c0c0c0",
   },
-  bulkAddCard: {
-    margin: 20,
+  formToggleRow: {
+    flexDirection: "row",
+    flexGrow: 1,
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: 5,
+    paddingBottom: 5,
+  },
+  divider: {
+    margin: 5,
   },
 });
