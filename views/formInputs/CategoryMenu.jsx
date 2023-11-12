@@ -22,6 +22,7 @@ export default function CategoryMenu({ category, setCategory }) {
     <>
       <View style={style.formCategoryRow}>
         <Menu
+          style={style.formInputPositioning}
           visible={iconVisible}
           onDismiss={() => setIconVisible(false)}
           anchorPosition="bottom"
@@ -68,75 +69,68 @@ export default function CategoryMenu({ category, setCategory }) {
             );
           })}
         </Menu>
-
-        <TextInput
-          style={{ flex: 1, marginLeft: 10 }}
-          mode="outlined"
-          label="Category"
-          editable
-          value={category.value}
-          onChangeText={(x) => {
-            if (category.custom === false) {
-              setCategory({
-                ...category,
-                value: x,
-                icon: null,
-                custom: true,
-              });
-            } else {
-              setCategory({
-                ...category,
-                value: x,
-                custom: true,
-              });
-            }
-          }}
-          right={
-            <TextInput.Icon
-              icon={category.visible ? "menu-up" : "menu-down"}
-              onPress={() =>
-                menuVisible ? setMenuVisible(false) : setMenuVisible(true)
-              }
-            />
-          }
-        />
-      </View>
-      <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
-        <Menu
-          visible={menuVisible}
-          onDismiss={() => setMenuVisible(false)}
-          anchorPosition="bottom"
-          anchor={
-            <Divider
-              style={{
-                width: 1,
-                height: 1,
-              }}
-            />
-          }
-        >
-          {getCategoryList().map((x) => {
-            return (
-              <View key={"Category Selection Menu =" + x.title}>
-                <Menu.Item
-                  onPress={() => {
+        <View style={style.stretchTextInput}>
+          <Menu
+            visible={menuVisible}
+            onDismiss={() => setMenuVisible(false)}
+            anchorPosition="bottom"
+            anchor={
+              <TextInput
+                style={{ flex: 1, marginLeft: 10 }}
+                mode="outlined"
+                label="Category"
+                editable
+                value={category.value}
+                onChangeText={(x) => {
+                  if (category.custom === false) {
                     setCategory({
                       ...category,
-                      value: x.title,
-                      icon: x.icon,
-                      custom: false,
+                      value: x,
+                      icon: null,
+                      custom: true,
                     });
-                    setMenuVisible(false);
-                  }}
-                  title={x.title}
-                  leadingIcon={({ color }) => (
-                    <CategoryIcon category={x.icon} size={20} color={color} />
-                  )}
-                />
-              </View>
-            );
-          })}
-        </Menu>
+                  } else {
+                    setCategory({
+                      ...category,
+                      value: x,
+                      custom: true,
+                    });
+                  }
+                }}
+                right={
+                  <TextInput.Icon
+                    icon={category.visible ? "menu-up" : "menu-down"}
+                    onPress={() =>
+                      menuVisible ? setMenuVisible(false) : setMenuVisible(true)
+                    }
+                  />
+                }
+              />
+            }
+          >
+            {getCategoryList().map((x) => {
+              return (
+                <View key={"Category Selection Menu =" + x.title}>
+                  <Menu.Item
+                    onPress={() => {
+                      setCategory({
+                        ...category,
+                        value: x.title,
+                        icon: x.icon,
+                        custom: false,
+                      });
+                      setMenuVisible(false);
+                    }}
+                    title={x.title}
+                    leadingIcon={({ color }) => (
+                      <CategoryIcon category={x.icon} size={20} color={color} />
+                    )}
+                  />
+                </View>
+              );
+            })}
+          </Menu>
+        </View>
       </View>
       <HelperText type="info" padding="none" visible={category.custom === true}>
         You can customize your category name and icon
@@ -149,7 +143,10 @@ const style = StyleSheet.create({
   formCategoryRow: {
     flexDirection: "row",
     flexGrow: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: "stretch",
+    justifyContent: "right",
+  },
+  stretchTextInput: {
+    flexGrow: 1,
   },
 });
