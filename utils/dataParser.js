@@ -1,3 +1,6 @@
+import isURL from "validator/lib/isURL";
+
+// Given a string, tries to guess its potential category.
 const categoryIconParser = function (category) {
   category = category.toLowerCase();
   if (
@@ -175,18 +178,7 @@ const categoryIconParser = function (category) {
   }
 };
 
-const weightUnitParser = function (unit) {
-  if (unit === "ounce") {
-    return "oz";
-  } else if (unit === "gram") {
-    return "g";
-  } else if (unit.includes("pound")) {
-    return "lbs";
-  } else {
-    return unit;
-  }
-};
-
+/// Converts a given weight value into ounces.
 const convertWeight = function (value, unit) {
   if (
     unit === "pounds" ||
@@ -204,4 +196,62 @@ const convertWeight = function (value, unit) {
   return value;
 };
 
-export { categoryIconParser, weightUnitParser, convertWeight };
+// Returns a list of the applications common categories.
+const getCategoryList = () => [
+  { title: "Bear Aware", icon: "bear" },
+  { title: "Books & Guides", icon: "book" },
+  { title: "Bug Protection", icon: "bug" },
+  { title: "Clothing", icon: "clothing" },
+  { title: "Dental", icon: "dental" },
+  { title: "Electronics", icon: "electronics" },
+  { title: "Fire Starting", icon: "fire" },
+  { title: "Food", icon: "food" },
+  { title: "Hydration", icon: "water" },
+  { title: "Hygiene", icon: "toiletpaper" },
+  { title: "Light", icon: "light" },
+  { title: "Medical", icon: "medical" },
+  { title: "Mountaineering", icon: "mountain" },
+  { title: "Navigation", icon: "compass" },
+  { title: "Packing & Storage", icon: "storage" },
+  { title: "Photography", icon: "camera" },
+  { title: "Documents & ID", icon: "wallet" },
+  { title: "Shelter", icon: "tent" },
+  { title: "Sleeping", icon: "sleep" },
+  { title: "Snow Gear", icon: "snow" },
+  { title: "Sun Safety", icon: "sun" },
+  { title: "Tools", icon: "tools" },
+  { title: "Other", icon: "folder" },
+];
+
+// Confirms a given string is a valid URL.
+const validateURL = function (url) {
+  if (url.length < 4) {
+    return false;
+  }
+  if (url.substring(0, 4) !== "http") {
+    url = "https://" + url;
+  }
+
+  return isURL(url);
+};
+
+// Converts various units to their shorthand versions.
+const weightUnitParser = function (unit) {
+  if (unit === "ounce") {
+    return "oz";
+  } else if (unit === "gram") {
+    return "g";
+  } else if (unit.includes("pound")) {
+    return "lbs";
+  } else {
+    return unit;
+  }
+};
+
+export {
+  categoryIconParser,
+  convertWeight,
+  getCategoryList,
+  weightUnitParser,
+  validateURL,
+};

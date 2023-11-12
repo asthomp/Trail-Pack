@@ -1,4 +1,4 @@
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import { getAuth } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
@@ -9,9 +9,6 @@ import {
   Chip,
   FAB,
   SegmentedButtons,
-  IconButton,
-  Icon,
-  Button,
 } from "react-native-paper";
 
 import Database from "../utils/database";
@@ -37,7 +34,6 @@ export default function Locker() {
   }, [order, orderBy]);
 
   const getIcon = function (type) {
-    const icon = null;
     if (orderBy === type) {
       if (order === "asc") {
         return "chevron-up";

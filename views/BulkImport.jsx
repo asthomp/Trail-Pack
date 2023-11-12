@@ -1,4 +1,5 @@
 import axios from "axios";
+import { router } from "expo-router";
 import { useState } from "react";
 import { readString } from "react-native-csv";
 import {
@@ -10,13 +11,17 @@ import {
   TextInput,
 } from "react-native-paper";
 
+import Loading from "./Loading";
 import {
   categoryIconParser,
   convertWeight,
   weightUnitParser,
 } from "../utils/dataParser";
 
-export default function BulkImport({ db, user, bulk, setBulk }) {
+export default function BulkImport({ db, user, toggle }) {
+  const [bulk, setBulk] = useState({ url: null, error: null });
+  const [complete, setComplete] = useState(false);
+
   const importLighterPackData = async function () {
     try {
       const response = await axios.get(
@@ -54,6 +59,7 @@ export default function BulkImport({ db, user, bulk, setBulk }) {
             };
             await db.postItem(newItem);
           } catch (error) {
+            console.log(error);
             setBulk({
               ...bulk,
               error:
@@ -64,7 +70,9 @@ export default function BulkImport({ db, user, bulk, setBulk }) {
             break;
           }
         }
+        setComplete(true);
       } catch (error) {
+        console.log(error);
         setBulk({
           ...bulk,
           error: "500: Failed to parse list",
@@ -73,11 +81,11 @@ export default function BulkImport({ db, user, bulk, setBulk }) {
     } catch (error) {
       if (
         error.response.status === 400 &&
-        error.response.data === "Invalid list specified."
+        error.response.data === "Invalid list specified"
       ) {
         setBulk({
           ...bulk,
-          error: "404: List Not Found (Is the URL correct?)",
+          error: "404: List Not Found",
         });
       } else {
         setBulk({
@@ -96,8 +104,14 @@ export default function BulkImport({ db, user, bulk, setBulk }) {
       bulk.url.substring(0, 27) === "http://www.lighterpack.com/"
     );
   };
+
   return (
-    <Card style={style.bulkImportCard}>
+    <Card
+      style={{
+        flexGrow: 1,
+        margin: 10,
+      }}
+    >
       <Card.Title
         title="Add Bulk Items"
         left={(props) => <Avatar.Icon {...props} icon="folder" />}
@@ -106,7 +120,7 @@ export default function BulkImport({ db, user, bulk, setBulk }) {
             icon="chevron-left"
             mode="contained"
             onPress={() => {
-              setBulk({ ...bulk });
+              toggle();
             }}
             style={{ marginRight: 20 }}
           />
@@ -132,8 +146,11 @@ export default function BulkImport({ db, user, bulk, setBulk }) {
           mode="contained"
           onPress={() => {
             if (validLighterPackURL()) {
-              importLighterPackData();
+              importLighterPackData().then(() =>
+                complete ? router.back() : <Loading />,
+              );
             } else {
+              s;
               setBulk({
                 ...bulk,
                 error: "Invalid LighterPack URL",
