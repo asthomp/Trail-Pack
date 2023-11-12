@@ -4,10 +4,14 @@ import { initializeApp } from "firebase/app";
 // https://firebase.google.com/docs/web/setup#available-libraries
 import {
   getFirestore,
+  updateDoc,
+  serverTimestamp,
   collection,
   query,
+  orderBy,
   where,
   getDocs,
+  addDoc,
 } from "firebase/firestore";
 
 // Your web app's Firebase configuration
@@ -37,79 +41,19 @@ class Database {
     const querySnapshot = await getDocs(q);
     const results = [];
     querySnapshot.forEach((doc) => {
-      results.push(doc.data());
+      results.push({ ...doc.data(), ...{ itemID: doc.id } });
     });
     return results;
   }
 
-  // // CREATE => Posts a single item to the database.
-  // async postItem(item) {
-  //     await this.db.collection("items").add(item);
-  // }
-  //
-  // // CREATE -> Given an array of items, posts multiple items to the database.
-  // async postBulkItems(arr) {
-  //     for (let i = 0; i < arr.length; i++) {
-  //         await this.postItem(arr[i]);
-  //     }
-  // }
-  //
-  //
-
-  //
-  // // READ -> Retrieve all of a user's items sorted by category.
-  // async getItemCategories(userID, category) {
-  //     const snapshot = await this.db
-  //         .collection("items")
-  //         .where("userID", "==", userID)
-  //         .orderBy("category")
-  //         .get();
-  //     if (snapshot.empty) {
-  //         return { error: "404", message: "Not Found" };
-  //     }
-  //
-  //     const results = [];
-  //     snapshot.forEach((doc) => {
-  //         results.push(doc.data());
-  //     });
-  //     return results;
-  // }
-  //
-  // // HELPER => Converts LighterPack CSV data into an array of formatted JSON objects.
-  // async convertCSV(user = 1, path = "./sampleCSVData.csv") {
-  //     const data = await csv().fromFile(path);
-  //     const result = [];
-  //     for (let i = 0; i < data.length; i++) {
-  //         const item = {
-  //             product: data[i]["Item Name"],
-  //             brand: null,
-  //             category: data[i]["Category"],
-  //             weight: parseFloat(data[i]["weight"]),
-  //             weightUnit: data[i]["unit"],
-  //             price:
-  //                 parseFloat(data[i]["price"]) === 0
-  //                     ? null
-  //                     : parseFloat(data[i]["price"]),
-  //             priceUnit: "$",
-  //             link: data[i]["url"].length > 0 ? data[i]["url"] : null,
-  //             description: data[i]["desc"] === "" ? null : data[i]["desc"],
-  //             consumable: data[i]["consumable"] === "Consumable",
-  //             worn: data[i]["worn"] === "Worn",
-  //             userID: user,
-  //             itemID: i + 1,
-  //         };
-  //
-  //         // Convert weight units to shorthand.
-  //         if (item["weightUnit"] === "ounce") {
-  //             item["weightUnit"] = "oz";
-  //         } else if (item["weightUnit"] === "pound") {
-  //             item["weightUnit"] = "lbs";
-  //         } else if (item["weightUnit"] === "gram") {
-  //             item["weightUnit"] = "g";
-  //         }
-  //         result.push(item);
-  //     }
-  //     return result;
-  // }
+  // CREATE -> Post an item to the database.
+  async postItem(item) {
+    // Add a new document with a generated id.
+    const docRef = await addDoc(collection(this.db, "items"), item);
+    // Update the timestamp field with the value from the server
+    const updateTimestamp = await updateDoc(docRef, {
+      timestamp: serverTimestamp(),
+    });
+  }
 }
 export default Database;

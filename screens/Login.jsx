@@ -49,9 +49,27 @@ export default function Login() {
                   router.push("/");
                 })
                 .catch((error) => {
-                  const errorCode = error.code;
-                  const errorMessage = error.message;
-                  console.log(error.message);
+                  if (error.code === "auth/invalid-email") {
+                    setEmail({
+                      value: email.value,
+                      error: "Please enter a valid email",
+                    });
+                  } else if (error.code === "auth/invalid-login-credentials") {
+                    setPassword({
+                      value: password.value,
+                      error: "Invalid username and/or password",
+                    });
+                  } else if (error.code === "auth/missing-password") {
+                    setPassword({
+                      value: password.value,
+                      error: "Please enter a valid password",
+                    });
+                  } else {
+                    setPassword({
+                      value: password.value,
+                      error: "Oops! Something went wrong!",
+                    });
+                  }
                 });
             }}
           >

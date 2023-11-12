@@ -19,13 +19,6 @@ export default function NavBar() {
   }
   return (
     <Appbar.Header theme={theme}>
-      {router.canGoBack() ? (
-        <Appbar.BackAction
-          onPress={() => {
-            router.back();
-          }}
-        />
-      ) : null}
       <Appbar.Content title="Trail Pack" />
       <Appbar.Action
         icon={({ size, color }) => (

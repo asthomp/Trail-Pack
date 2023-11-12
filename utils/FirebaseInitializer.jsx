@@ -1,6 +1,10 @@
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "firebase/app";
-import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+import {
+  initializeAuth,
+  getReactNativePersistence,
+  getAuth,
+} from "firebase/auth";
 import React, { useEffect } from "react";
 import { Platform, View } from "react-native";
 
@@ -20,11 +24,19 @@ export default function FirebaseInitializer() {
   useEffect(() => {
     const app = initializeApp(firebaseConfig);
     if (Platform.OS === "web") {
-      initializeAuth(app);
+      try {
+        initializeAuth(app);
+      } catch {
+        getAuth(app);
+      }
     } else {
-      initializeAuth(app, {
-        persistence: getReactNativePersistence(ReactNativeAsyncStorage),
-      });
+      try {
+        initializeAuth(app, {
+          persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+        });
+      } catch {
+        getAuth(app);
+      }
     }
   }, []);
 
