@@ -129,7 +129,7 @@ export default function CategoryMenu({ category, setCategory }) {
                     setMenuVisible(false);
                   }}
                   title={x.title}
-                  leadingIcon={({ size, color }) => (
+                  leadingIcon={({ color }) => (
                     <CategoryIcon category={x.icon} size={20} color={color} />
                   )}
                 />

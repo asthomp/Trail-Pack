@@ -150,7 +150,6 @@ export default function BulkImport({ db, user, toggle }) {
                 complete ? router.back() : <Loading />,
               );
             } else {
-              s;
               setBulk({
                 ...bulk,
                 error: "Invalid LighterPack URL",

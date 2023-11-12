@@ -7,12 +7,9 @@ import {
   Fontisto,
   Ionicons,
   MaterialCommunityIcons,
-  SimpleLineIcons,
 } from "@expo/vector-icons";
-import { router } from "expo-router";
 import React from "react";
-import { View, StyleSheet, useColorScheme } from "react-native";
-import { Button } from "react-native-paper";
+import { StyleSheet } from "react-native";
 
 export default function CategoryIcon({ category, size, color }) {
   category = category.toLowerCase();
