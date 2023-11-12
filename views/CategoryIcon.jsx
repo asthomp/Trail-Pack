@@ -1,3 +1,4 @@
+// Given a category, attempts to retun an appropriate icon.
 import {
   Entypo,
   Feather,
