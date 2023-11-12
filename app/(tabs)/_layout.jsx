@@ -19,8 +19,8 @@ export default function TabsLayout() {
         default: {},
       })}
       screenOptions={{
-        header: () => {
-          return <NavBar />;
+        header: (props) => {
+          return <NavBar props={props} />;
         },
       }}
     >

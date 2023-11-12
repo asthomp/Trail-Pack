@@ -1,4 +1,3 @@
-import { FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
 import { useColorScheme } from "react-native";
@@ -21,15 +20,10 @@ export default function NavBar() {
     <Appbar.Header theme={theme}>
       <Appbar.Content title="Trail Pack" />
       <Appbar.Action
-        icon={({ size, color }) => (
-          <FontAwesome
-            name="user"
-            size={size}
-            color={color}
-            style={{ textAlign: "center" }}
-          />
-        )}
-        onPress={() => router.push("/profile")}
+        icon="account"
+        onPress={() => {
+          router.push("/profile");
+        }}
       />
     </Appbar.Header>
   );
