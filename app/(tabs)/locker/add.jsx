@@ -2,6 +2,6 @@ import React from "react";
 
 import AddItem from "../../../screens/AddItem";
 
-export default function add() {
+export default function AddItemRoute() {
   return <AddItem />;
 }

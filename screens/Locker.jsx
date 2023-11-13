@@ -126,6 +126,15 @@ export default function Locker() {
                   return (
                     <View key={"ID#" + x.itemID + "-section''"}>
                       <List.Item
+                        onPress={() =>
+                          router.push({
+                            pathname: "locker/[itemID]",
+                            params: {
+                              itemID: x.itemID,
+                              data: JSON.stringify(x),
+                            },
+                          })
+                        }
                         title={x.product}
                         description={
                           x.brand ? x.brand + "\n" + x.category : x.category
@@ -142,7 +151,7 @@ export default function Locker() {
                             )}
                           />
                         )}
-                        right={(props) => (
+                        right={() => (
                           <Text>
                             {x.displayWeight} {x.displayWeightUnit}
                           </Text>
@@ -204,27 +213,7 @@ const style = StyleSheet.create({
   },
 });
 
-// Sorting Comparators
-function sortingComparator(a, b) {
-  if (b < a) {
-    return -1;
-  }
-  if (b > a) {
-    return 1;
-  }
-  return 0;
-}
-
-function getComparator(order, orderBy) {
-  return order === "desc"
-    ? (a, b) => sortingComparator(a, b)
-    : (a, b) => -sortingComparator(a, b);
-}
-
 function sortArray(array, orderBy, order) {
-  const compareTime = (a, b) =>
-    a.timestamp.nanoseconds - b.timestamp.nanoseconds;
-
   let comparator = undefined;
   switch (orderBy) {
     case "product":

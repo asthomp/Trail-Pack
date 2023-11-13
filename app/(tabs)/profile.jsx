@@ -2,6 +2,6 @@ import React from "react";
 
 import Profile from "../../screens/Profile";
 
-export default function profile() {
+export default function ProfileRoute() {
   return <Profile />;
 }
