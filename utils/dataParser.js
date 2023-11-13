@@ -212,7 +212,7 @@ const getCategoryList = () => [
   { title: "Medical", icon: "medical" },
   { title: "Mountaineering", icon: "mountain" },
   { title: "Navigation", icon: "compass" },
-  { title: "Packing & Storage", icon: "storage" },
+  { title: "Storage", icon: "storage" },
   { title: "Photography", icon: "camera" },
   { title: "Documents & ID", icon: "wallet" },
   { title: "Shelter", icon: "tent" },
