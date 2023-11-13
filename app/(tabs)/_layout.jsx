@@ -34,7 +34,6 @@ export default function TabsLayout() {
           ),
         }}
       />
-
       <Tabs.Screen
         name="pack/index"
         options={{
@@ -48,7 +47,6 @@ export default function TabsLayout() {
           ),
         }}
       />
-
       <Tabs.Screen
         name="locker/index"
         options={{
@@ -59,6 +57,7 @@ export default function TabsLayout() {
         }}
       />
       {/* Hidden Routes */}
+
       <Tabs.Screen
         name="profile"
         options={{
@@ -68,6 +67,13 @@ export default function TabsLayout() {
 
       <Tabs.Screen
         name="locker/add"
+        options={{
+          href: null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="locker/[itemID]"
         options={{
           href: null,
         }}

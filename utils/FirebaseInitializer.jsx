@@ -8,7 +8,11 @@ import {
 import React, { useEffect } from "react";
 import { Platform, View } from "react-native";
 
-// This key is protected by Firebase Security rules and application quotas.
+// Firebase needs an API Key to identify the application. Since it's a frontend library and does not use a backend
+// (that we control), the API Key must be available in the client code. Otherwise, there's no way to access Firebase.
+// It all ends up installed on a user's device, even if stored in a .env variable. Because the API key is client-side,
+// it cannot provide security because anything in the client cannot be secret. Security and access control is handled
+// by Firebase Auth and Firebase Security Rules setup within the Firebase Console.
 // https://firebase.google.com/docs/projects/api-keys#apply-restrictions
 const firebaseConfig = {
   apiKey: "AIzaSyD3FxNN1giqGjiqe8SfasrzFDeJNz1YyXg",

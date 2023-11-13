@@ -35,6 +35,7 @@ yarn-error.*
 *.tsbuildinfo
 
 # IDE Specific Settings
+.idea
 /.idea/modules.xml
 /.idea/Trail-Trek.iml
 /.idea/vcs.xml
