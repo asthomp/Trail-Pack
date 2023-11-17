@@ -1,5 +1,4 @@
 import { router } from "expo-router";
-import { getAuth } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import {
@@ -11,26 +10,16 @@ import {
   SegmentedButtons,
 } from "react-native-paper";
 
-import Database from "../utils/database";
+import { useDataContext } from "../utils/DataProvider";
 import CategoryIcon from "../views/CategoryIcon";
 import Loading from "../views/Loading";
 export default function Locker() {
-  const [data, setData] = useState(null);
   const [orderBy, setOrderBy] = useState("timestamp");
   const [order, setOrder] = useState("asc");
 
+  const data = useDataContext();
   useEffect(() => {
-    const user = getAuth();
-    const db = new Database();
-    db.getItems(user.currentUser.uid).then((x) => {
-      setData(sortArray(x, orderBy, order));
-    });
-  }, []);
-
-  useEffect(() => {
-    if (data) {
-      setData(sortArray(data, orderBy, order));
-    }
+    data.setItems(sortArray(data.items, orderBy, order));
   }, [order, orderBy]);
 
   const getIcon = function (type) {
@@ -45,7 +34,7 @@ export default function Locker() {
 
   return (
     <View style={style.lockerContainer}>
-      {!data ? (
+      {!data.items ? (
         <Loading />
       ) : (
         <>
@@ -121,8 +110,8 @@ export default function Locker() {
                 alignItems: "stretch",
               }}
             >
-              {data.length > 0 ? (
-                data.map((x) => {
+              {data.items.length > 0 ? (
+                data.items.map((x) => {
                   return (
                     <View key={"ID#" + x.itemID + "-section''"}>
                       <List.Item
@@ -239,8 +228,7 @@ function sortArray(array, orderBy, order) {
       }
       break;
     case "timestamp":
-      comparator = (a, b) =>
-        -(a.timestamp.nanoseconds - b.timestamp.nanoseconds);
+      comparator = (a, b) => -(a.timestamp.seconds - b.timestamp.seconds);
       break;
   }
 

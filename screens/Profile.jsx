@@ -13,7 +13,7 @@ export default function Profile() {
           <Text style={style.profileText}>
             This will be the user's profile.
           </Text>
-          <LinkButton text="Return Home" link="/" />
+          <LinkButton text="Return Home" link="/home" />
         </Card.Content>
       </Card>
     </View>

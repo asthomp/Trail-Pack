@@ -1,30 +1,13 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 import {
   getFirestore,
   updateDoc,
   serverTimestamp,
   collection,
   query,
-  orderBy,
   where,
   getDocs,
   addDoc,
 } from "firebase/firestore";
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyD3FxNN1giqGjiqe8SfasrzFDeJNz1YyXg",
-  authDomain: "trail-pack-400523.firebaseapp.com",
-  projectId: "trail-pack-400523",
-  storageBucket: "trail-pack-400523.appspot.com",
-  messagingSenderId: "66386871855",
-  appId: "1:66386871855:web:c011b4237ff253e4e468da",
-  measurementId: "G-QC6ZCQ5D5Y",
-};
 
 class Database {
   constructor() {
@@ -51,9 +34,10 @@ class Database {
     // Add a new document with a generated id.
     const docRef = await addDoc(collection(this.db, "items"), item);
     // Update the timestamp field with the value from the server
-    const updateTimestamp = await updateDoc(docRef, {
+    await updateDoc(docRef, {
       timestamp: serverTimestamp(),
     });
+    return docRef;
   }
 }
 export default Database;

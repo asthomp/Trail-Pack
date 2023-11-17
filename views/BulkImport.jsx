@@ -1,5 +1,6 @@
 import axios from "axios";
 import { router } from "expo-router";
+import { getAuth } from "firebase/auth";
 import { useState } from "react";
 import { readString } from "react-native-csv";
 import {
@@ -17,10 +18,12 @@ import {
   convertWeight,
   weightUnitParser,
 } from "../utils/dataParser";
+import Database from "../utils/database";
 
-export default function BulkImport({ db, user, toggle }) {
+export default function BulkImport({ toggle }) {
   const [bulk, setBulk] = useState({ url: null, error: null });
   const [complete, setComplete] = useState(false);
+  const db = new Database();
 
   const importLighterPackData = async function () {
     try {
@@ -54,7 +57,7 @@ export default function BulkImport({ db, user, toggle }) {
               consumable: data[i]["consumable"] !== null,
               nutrition: null,
               wearable: data[i]["worn"] !== null,
-              userID: user,
+              userID: getAuth().currentUser.uid,
               quantity: data[i]["qty"],
             };
             await db.postItem(newItem);
@@ -115,7 +118,7 @@ export default function BulkImport({ db, user, toggle }) {
       <Card.Title
         title="Add Bulk Items"
         left={(props) => <Avatar.Icon {...props} icon="folder" />}
-        right={(props) => (
+        right={() => (
           <IconButton
             icon="chevron-left"
             mode="contained"

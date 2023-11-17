@@ -18,7 +18,7 @@ export default function Pack() {
             image.
           </Text>
           <Text style={style.packText}>{strings.loremIpsum}</Text>
-          <LinkButton text="Return Home" link="/" />
+          <LinkButton text="Return Home" link="/home" />
         </Card.Content>
       </Card>
     </View>

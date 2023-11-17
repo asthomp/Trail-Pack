@@ -1,5 +1,7 @@
 // This component creates a new item and adds it to the database.
 
+import { router } from "expo-router";
+import { getAuth } from "firebase/auth";
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Avatar, Button, Card, Divider, HelperText } from "react-native-paper";
@@ -10,9 +12,11 @@ import Price from "./formInputs/Price";
 import ToggleRow from "./formInputs/ToggleRow";
 import URL from "./formInputs/URL";
 import WeightMenu from "./formInputs/WeightMenu";
+import { useDataContext } from "../utils/DataProvider";
 import { convertWeight, validateURL } from "../utils/dataParser";
+import Database from "../utils/database";
 
-export default function CreateItem({ user, db, toggle }) {
+export default function CreateItem({ toggle }) {
   const [error, setError] = useState(null);
   const [productName, setProductName] = useState({ value: "", error: null });
   const [brand, setBrand] = useState({ value: "", error: null });
@@ -35,6 +39,8 @@ export default function CreateItem({ user, db, toggle }) {
   const [price, setPrice] = useState({ value: "", unit: "$", error: null });
   const [quantity, setQuantity] = useState({ value: "", error: null });
   const [url, setURL] = useState({ value: "", error: null });
+  const db = new Database();
+  const data = useDataContext();
 
   const hasError = () => {
     return (
@@ -63,7 +69,7 @@ export default function CreateItem({ user, db, toggle }) {
 
       // Build the object
       try {
-        const result = await db.postItem({
+        await db.postItem({
           product: productName.value,
           brand: brand.value,
           category: category.value,
@@ -79,10 +85,11 @@ export default function CreateItem({ user, db, toggle }) {
           consumable,
           nutrition: null,
           wearable,
-          userID: user,
+          userID: getAuth().currentUser.uid,
           quantity: quantity.value,
         });
-        console.log(result);
+        data.refresh();
+        router.push("/locker");
       } catch (error) {
         console.log(error);
         setError("500: Failed to post to the database");
@@ -95,7 +102,7 @@ export default function CreateItem({ user, db, toggle }) {
       <Card.Title
         title="Add New Item"
         left={(props) => <Avatar.Icon {...props} icon="folder" />}
-        right={(props) => (
+        right={() => (
           <Button
             mode="text"
             onPress={() => {
