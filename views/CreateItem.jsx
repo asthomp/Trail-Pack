@@ -66,34 +66,45 @@ export default function CreateItem({ toggle }) {
       setError("Please correct your input");
     } else {
       setError(null);
+    }
+    // Post the item
+    try {
+      await db.postItem({
+        product: productName.value,
+        brand: brand.value,
+        category: category.value,
+        categoryIcon: category.icon,
+        displayWeight: weight.value,
+        displayWeightUnit: weight.unit,
+        weight: convertWeight(weight.value, weight.unit),
+        weightUnit: "oz",
+        price: price.value,
+        priceUnit: "$",
+        link: url.value,
+        description: description.value,
+        consumable,
+        nutrition: null,
+        wearable,
+        userID: getAuth().currentUser.uid,
+        quantity: quantity.value,
+      });
+    } catch (error) {
+      console.log(error);
+      setError("500: Failed to post to the database");
+    }
 
-      // Build the object
-      try {
-        await db.postItem({
-          product: productName.value,
-          brand: brand.value,
-          category: category.value,
-          categoryIcon: category.icon,
-          displayWeight: weight.value,
-          displayWeightUnit: weight.unit,
-          weight: convertWeight(weight.value, weight.unit),
-          weightUnit: "oz",
-          price: price.value,
-          priceUnit: "$",
-          link: url.value,
-          description: description.value,
-          consumable,
-          nutrition: null,
-          wearable,
-          userID: getAuth().currentUser.uid,
-          quantity: quantity.value,
-        });
-        data.refresh();
-        router.push("/locker");
-      } catch (error) {
-        console.log(error);
-        setError("500: Failed to post to the database");
-      }
+    try {
+      await data.refresh();
+    } catch (error) {
+      console.log(error);
+      setError("500: Failed to refresh data");
+    }
+
+    try {
+      router.push("/locker");
+    } catch (error) {
+      console.log(error);
+      setError("500: Failed to navigate");
     }
   };
 

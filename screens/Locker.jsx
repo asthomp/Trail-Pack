@@ -17,9 +17,9 @@ export default function Locker() {
   const [orderBy, setOrderBy] = useState("timestamp");
   const [order, setOrder] = useState("asc");
 
-  const data = useDataContext();
+  const { data, resort } = useDataContext();
   useEffect(() => {
-    data.setItems(sortArray(data.items, orderBy, order));
+    resort("items", orderBy, order);
   }, [order, orderBy]);
 
   const getIcon = function (type) {
@@ -201,37 +201,3 @@ const style = StyleSheet.create({
     justifyContent: "flex-end",
   },
 });
-
-function sortArray(array, orderBy, order) {
-  let comparator = undefined;
-  switch (orderBy) {
-    case "product":
-    default:
-      if (order === "asc") {
-        comparator = (a, b) => a.product.localeCompare(b.product);
-      } else {
-        comparator = (a, b) => -a.product.localeCompare(b.product);
-      }
-      break;
-    case "category":
-      if (order === "asc") {
-        comparator = (a, b) => a.category.localeCompare(b.category);
-      } else {
-        comparator = (a, b) => -a.category.localeCompare(b.category);
-      }
-      break;
-    case "weight":
-      if (order === "asc") {
-        comparator = (a, b) => a.weight - b.weight;
-      } else {
-        comparator = (a, b) => -(a.weight - b.weight);
-      }
-      break;
-    case "timestamp":
-      comparator = (a, b) => -(a.timestamp.seconds - b.timestamp.seconds);
-      break;
-  }
-
-  const newArray = Array.from(array);
-  return newArray.sort(comparator);
-}
