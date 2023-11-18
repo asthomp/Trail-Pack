@@ -4,6 +4,6 @@ import React from "react";
 import ViewItem from "../../../screens/ViewItem";
 
 export default function ViewItemRoute() {
-  const { data } = useLocalSearchParams();
-  return <ViewItem data={JSON.parse(data)} />;
+  const { item } = useLocalSearchParams();
+  return <ViewItem item={JSON.parse(item)} />;
 }

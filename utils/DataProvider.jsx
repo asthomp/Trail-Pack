@@ -4,11 +4,13 @@ import { getAuth } from "firebase/auth";
 import {
   addDoc,
   collection,
+  deleteDoc,
   getDocs,
   getFirestore,
   query,
   serverTimestamp,
   updateDoc,
+  doc,
   where,
 } from "firebase/firestore";
 import * as React from "react";
@@ -22,6 +24,7 @@ export default function DataContextProvider({ children }) {
     packs: [],
     error: null,
   });
+  const db = getFirestore();
   useEffect(() => {
     refresh();
   }, []);
@@ -50,7 +53,7 @@ export default function DataContextProvider({ children }) {
 
   // CREATE ITEM -> Post an item to the database.
   const postItem = async function (item) {
-    const docRef = await addDoc(collection(getFirestore(), "items"), item);
+    const docRef = await addDoc(collection(db, "items"), item);
     await updateDoc(docRef, {
       timestamp: serverTimestamp(),
     });
@@ -59,10 +62,7 @@ export default function DataContextProvider({ children }) {
 
   // READ ITEMS -> Retrieve all of a user's items.
   const getItems = async function (userID) {
-    const q = query(
-      collection(getFirestore(), "items"),
-      where("userID", "==", userID),
-    );
+    const q = query(collection(db, "items"), where("userID", "==", userID));
 
     const querySnapshot = await getDocs(q);
     const results = [];
@@ -72,8 +72,23 @@ export default function DataContextProvider({ children }) {
     return results;
   };
 
+  // DELETE ITEM
+  const deleteItem = async function (itemID) {
+    const docRef = doc(db, "items", itemID);
+    try {
+      await deleteDoc(docRef);
+      refresh();
+      return true;
+    } catch (error) {
+      console.log(`500: Error deleting ${itemID}`);
+      return false;
+    }
+  };
+
   return (
-    <DataContext.Provider value={{ data, refresh, resort, getItems, postItem }}>
+    <DataContext.Provider
+      value={{ data, refresh, resort, postItem, getItems, deleteItem }}
+    >
       {children}
     </DataContext.Provider>
   );

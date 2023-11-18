@@ -120,7 +120,7 @@ export default function Locker() {
                             pathname: "locker/[itemID]",
                             params: {
                               itemID: x.itemID,
-                              data: JSON.stringify(x),
+                              item: JSON.stringify(x),
                             },
                           })
                         }
