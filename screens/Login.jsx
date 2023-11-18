@@ -45,8 +45,14 @@ export default function Login() {
               signInWithEmailAndPassword(auth, email.value, password.value)
                 .then((userCredential) => {
                   // Signed in
-                  const user = userCredential.user;
-                  router.push("/");
+                  if (userCredential) {
+                    router.push("/home");
+                  } else {
+                    setPassword({
+                      password: "",
+                      error: "Something went wrong, try again.",
+                    });
+                  }
                 })
                 .catch((error) => {
                   if (error.code === "auth/invalid-email") {
@@ -56,17 +62,17 @@ export default function Login() {
                     });
                   } else if (error.code === "auth/invalid-login-credentials") {
                     setPassword({
-                      value: password.value,
+                      value: "",
                       error: "Invalid username and/or password",
                     });
                   } else if (error.code === "auth/missing-password") {
                     setPassword({
-                      value: password.value,
+                      value: "",
                       error: "Please enter a valid password",
                     });
                   } else {
                     setPassword({
-                      value: password.value,
+                      value: "",
                       error: "Oops! Something went wrong!",
                     });
                   }

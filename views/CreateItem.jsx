@@ -1,5 +1,7 @@
 // This component creates a new item and adds it to the database.
 
+import { router } from "expo-router";
+import { getAuth } from "firebase/auth";
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Avatar, Button, Card, Divider, HelperText } from "react-native-paper";
@@ -10,9 +12,10 @@ import Price from "./formInputs/Price";
 import ToggleRow from "./formInputs/ToggleRow";
 import URL from "./formInputs/URL";
 import WeightMenu from "./formInputs/WeightMenu";
+import { useDataContext } from "../utils/DataProvider";
 import { convertWeight, validateURL } from "../utils/dataParser";
 
-export default function CreateItem({ user, db, toggle }) {
+export default function CreateItem({ toggle }) {
   const [error, setError] = useState(null);
   const [productName, setProductName] = useState({ value: "", error: null });
   const [brand, setBrand] = useState({ value: "", error: null });
@@ -35,6 +38,7 @@ export default function CreateItem({ user, db, toggle }) {
   const [price, setPrice] = useState({ value: "", unit: "$", error: null });
   const [quantity, setQuantity] = useState({ value: "", error: null });
   const [url, setURL] = useState({ value: "", error: null });
+  const { refresh, postItem } = useDataContext();
 
   const hasError = () => {
     return (
@@ -60,33 +64,45 @@ export default function CreateItem({ user, db, toggle }) {
       setError("Please correct your input");
     } else {
       setError(null);
+    }
+    // Post the item
+    try {
+      await postItem({
+        product: productName.value,
+        brand: brand.value,
+        category: category.value,
+        categoryIcon: category.icon,
+        displayWeight: weight.value,
+        displayWeightUnit: weight.unit,
+        weight: convertWeight(weight.value, weight.unit),
+        weightUnit: "oz",
+        price: price.value,
+        priceUnit: "$",
+        link: url.value,
+        description: description.value,
+        consumable,
+        nutrition: null,
+        wearable,
+        userID: getAuth().currentUser.uid,
+        quantity: quantity.value,
+      });
+    } catch (error) {
+      console.log(error);
+      setError("500: Failed to post to the database");
+    }
 
-      // Build the object
-      try {
-        const result = await db.postItem({
-          product: productName.value,
-          brand: brand.value,
-          category: category.value,
-          categoryIcon: category.icon,
-          displayWeight: weight.value,
-          displayWeightUnit: weight.unit,
-          weight: convertWeight(weight.value, weight.unit),
-          weightUnit: "oz",
-          price: price.value,
-          priceUnit: "$",
-          link: url.value,
-          description: description.value,
-          consumable,
-          nutrition: null,
-          wearable,
-          userID: user,
-          quantity: quantity.value,
-        });
-        console.log(result);
-      } catch (error) {
-        console.log(error);
-        setError("500: Failed to post to the database");
-      }
+    try {
+      await refresh();
+    } catch (error) {
+      console.log(error);
+      setError("500: Failed to refresh data");
+    }
+
+    try {
+      router.push("/locker");
+    } catch (error) {
+      console.log(error);
+      setError("500: Failed to navigate");
     }
   };
 
@@ -95,7 +111,7 @@ export default function CreateItem({ user, db, toggle }) {
       <Card.Title
         title="Add New Item"
         left={(props) => <Avatar.Icon {...props} icon="folder" />}
-        right={(props) => (
+        right={() => (
           <Button
             mode="text"
             onPress={() => {

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Landing from "../../screens/Landing";
 import Loading from "../../views/Loading";
 
-export default function App() {
+export default function HomeRoute() {
   const [user, setUser] = useState("Loading");
   useEffect(() => {
     const user = getAuth();

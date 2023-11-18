@@ -1,5 +1,6 @@
 import axios from "axios";
 import { router } from "expo-router";
+import { getAuth } from "firebase/auth";
 import { useState } from "react";
 import { readString } from "react-native-csv";
 import {
@@ -12,16 +13,16 @@ import {
 } from "react-native-paper";
 
 import Loading from "./Loading";
+import { useDataContext } from "../utils/DataProvider";
 import {
   categoryIconParser,
   convertWeight,
   weightUnitParser,
 } from "../utils/dataParser";
-
-export default function BulkImport({ db, user, toggle }) {
-  const [bulk, setBulk] = useState({ url: null, error: null });
+export default function BulkImport({ toggle }) {
+  const [bulk, setBulk] = useState({ url: "", error: null });
   const [complete, setComplete] = useState(false);
-
+  const { refresh, postItem } = useDataContext();
   const importLighterPackData = async function () {
     try {
       const response = await axios.get(
@@ -54,10 +55,10 @@ export default function BulkImport({ db, user, toggle }) {
               consumable: data[i]["consumable"] !== null,
               nutrition: null,
               wearable: data[i]["worn"] !== null,
-              userID: user,
+              userID: getAuth().currentUser.uid,
               quantity: data[i]["qty"],
             };
-            await db.postItem(newItem);
+            await postItem(newItem);
           } catch (error) {
             console.log(error);
             setBulk({
@@ -70,6 +71,7 @@ export default function BulkImport({ db, user, toggle }) {
             break;
           }
         }
+        refresh();
         setComplete(true);
       } catch (error) {
         console.log(error);
@@ -115,7 +117,7 @@ export default function BulkImport({ db, user, toggle }) {
       <Card.Title
         title="Add Bulk Items"
         left={(props) => <Avatar.Icon {...props} icon="folder" />}
-        right={(props) => (
+        right={() => (
           <IconButton
             icon="chevron-left"
             mode="contained"
@@ -147,7 +149,7 @@ export default function BulkImport({ db, user, toggle }) {
           onPress={() => {
             if (validLighterPackURL()) {
               importLighterPackData().then(() =>
-                complete ? router.back() : <Loading />,
+                complete ? router.push("/locker") : <Loading />,
               );
             } else {
               setBulk({
