@@ -1,14 +1,21 @@
 // This provider ensures that a user is logged in and queries the database,
 // providing data to all of its children. It can also update the data.
 import { getAuth } from "firebase/auth";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  getFirestore,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import * as React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 
-import Database from "./database";
-
 export const DataContext = createContext(null);
 
-// Provider
 export default function DataContextProvider({ children }) {
   const [data, setData] = useState({
     items: [],
@@ -19,16 +26,15 @@ export default function DataContextProvider({ children }) {
     refresh();
   }, []);
 
-  // Refreshes the data by querying the database
+  // Refresh data by querying the database
   const refresh = (orderBy = "timestamp", order = "asc") => {
     const user = getAuth();
-    const db = new Database();
-    db.getItems(user.currentUser.uid).then(async (x) => {
+    getItems(user.currentUser.uid).then(async (x) => {
       await setData({ ...data, items: sortArray(x, orderBy, order) });
     });
   };
 
-  // Sorts already existing data
+  // Sort existing data
   const resort = async (
     target = "items",
     orderBy = "timestamp",
@@ -42,8 +48,32 @@ export default function DataContextProvider({ children }) {
     }
   };
 
+  // CREATE ITEM -> Post an item to the database.
+  const postItem = async function (item) {
+    const docRef = await addDoc(collection(getFirestore(), "items"), item);
+    await updateDoc(docRef, {
+      timestamp: serverTimestamp(),
+    });
+    return docRef;
+  };
+
+  // READ ITEMS -> Retrieve all of a user's items.
+  const getItems = async function (userID) {
+    const q = query(
+      collection(getFirestore(), "items"),
+      where("userID", "==", userID),
+    );
+
+    const querySnapshot = await getDocs(q);
+    const results = [];
+    querySnapshot.forEach((doc) => {
+      results.push({ ...doc.data(), ...{ itemID: doc.id } });
+    });
+    return results;
+  };
+
   return (
-    <DataContext.Provider value={{ data, refresh, resort }}>
+    <DataContext.Provider value={{ data, refresh, resort, getItems, postItem }}>
       {children}
     </DataContext.Provider>
   );
@@ -59,7 +89,7 @@ export function useDataContext() {
   return context;
 }
 
-// Internal sorting function
+// SORT
 function sortArray(array, orderBy, order) {
   let comparator = undefined;
   switch (orderBy) {

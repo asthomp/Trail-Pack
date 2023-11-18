@@ -14,7 +14,6 @@ import URL from "./formInputs/URL";
 import WeightMenu from "./formInputs/WeightMenu";
 import { useDataContext } from "../utils/DataProvider";
 import { convertWeight, validateURL } from "../utils/dataParser";
-import Database from "../utils/database";
 
 export default function CreateItem({ toggle }) {
   const [error, setError] = useState(null);
@@ -39,8 +38,7 @@ export default function CreateItem({ toggle }) {
   const [price, setPrice] = useState({ value: "", unit: "$", error: null });
   const [quantity, setQuantity] = useState({ value: "", error: null });
   const [url, setURL] = useState({ value: "", error: null });
-  const db = new Database();
-  const data = useDataContext();
+  const { refresh, postItem } = useDataContext();
 
   const hasError = () => {
     return (
@@ -69,7 +67,7 @@ export default function CreateItem({ toggle }) {
     }
     // Post the item
     try {
-      await db.postItem({
+      await postItem({
         product: productName.value,
         brand: brand.value,
         category: category.value,
@@ -94,7 +92,7 @@ export default function CreateItem({ toggle }) {
     }
 
     try {
-      await data.refresh();
+      await refresh();
     } catch (error) {
       console.log(error);
       setError("500: Failed to refresh data");

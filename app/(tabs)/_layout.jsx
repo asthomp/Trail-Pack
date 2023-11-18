@@ -73,6 +73,12 @@ export default function TabsLayout() {
             href: null,
           }}
         />
+        <Tabs.Screen
+          name="locker/edit"
+          options={{
+            href: null,
+          }}
+        />
 
         <Tabs.Screen
           name="locker/[itemID]"

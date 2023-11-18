@@ -13,18 +13,16 @@ import {
 } from "react-native-paper";
 
 import Loading from "./Loading";
+import { useDataContext } from "../utils/DataProvider";
 import {
   categoryIconParser,
   convertWeight,
   weightUnitParser,
 } from "../utils/dataParser";
-import Database from "../utils/database";
-
 export default function BulkImport({ toggle }) {
-  const [bulk, setBulk] = useState({ url: null, error: null });
+  const [bulk, setBulk] = useState({ url: "", error: null });
   const [complete, setComplete] = useState(false);
-  const db = new Database();
-
+  const { refresh, postItem } = useDataContext();
   const importLighterPackData = async function () {
     try {
       const response = await axios.get(
@@ -60,7 +58,7 @@ export default function BulkImport({ toggle }) {
               userID: getAuth().currentUser.uid,
               quantity: data[i]["qty"],
             };
-            await db.postItem(newItem);
+            await postItem(newItem);
           } catch (error) {
             console.log(error);
             setBulk({
@@ -73,6 +71,7 @@ export default function BulkImport({ toggle }) {
             break;
           }
         }
+        refresh();
         setComplete(true);
       } catch (error) {
         console.log(error);
@@ -150,7 +149,7 @@ export default function BulkImport({ toggle }) {
           onPress={() => {
             if (validLighterPackURL()) {
               importLighterPackData().then(() =>
-                complete ? router.back() : <Loading />,
+                complete ? router.push("/locker") : <Loading />,
               );
             } else {
               setBulk({

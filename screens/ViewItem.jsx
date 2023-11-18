@@ -29,6 +29,9 @@ export default function ViewItem({ data }) {
               )}
             />
           )}
+          right={() => (
+            <IconButton mode="contained-tonal" size={20} icon="pencil" />
+          )}
         />
         <Card.Content>
           <Text>
@@ -49,6 +52,14 @@ export default function ViewItem({ data }) {
           <IconButton icon="web" onPress={(_) => alert(data.link)} />
           <Text>Added = {data.timestamp.seconds}</Text>
         </Card.Content>
+        <Card.Actions>
+          <IconButton
+            mode="contained-tonal"
+            iconColor="rgb(186, 26, 26)"
+            size={20}
+            icon="delete"
+          />
+        </Card.Actions>
       </Card>
 
       <Card style={{ margin: 30 }}>
