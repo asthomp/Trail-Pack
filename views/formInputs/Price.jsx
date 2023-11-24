@@ -8,7 +8,7 @@ import { HelperText, TextInput } from "react-native-paper";
 
 export default function Price({ price, setPrice, placeholder = "0" }) {
   return (
-    <View>
+    <View style={{ flex: 2, marginRight: 10 }}>
       <TextInput
         mode="outlined"
         label="Price"
@@ -20,7 +20,7 @@ export default function Price({ price, setPrice, placeholder = "0" }) {
             setPrice({
               ...price,
               value: x,
-              error: "Please enter a valid number",
+              error: "Please enter a number",
             });
           } else {
             setPrice({ ...price, value: x, error: null });

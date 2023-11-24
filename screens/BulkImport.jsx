@@ -12,13 +12,13 @@ import {
   TextInput,
 } from "react-native-paper";
 
-import Loading from "./Loading";
 import { useDataContext } from "../utils/DataProvider";
 import {
   categoryIconParser,
   convertWeight,
   weightUnitParser,
 } from "../utils/dataParser";
+import Loading from "../views/Loading";
 export default function BulkImport({ toggle }) {
   const [bulk, setBulk] = useState({ url: "", error: null });
   const [complete, setComplete] = useState(false);
