@@ -124,10 +124,8 @@ export default function Locker() {
                             },
                           })
                         }
-                        title={x.product}
-                        description={
-                          x.brand ? x.brand + "\n" + x.category : x.category
-                        }
+                        title={x.brand ? x.brand + " " + x.product : x.product}
+                        description={x.category}
                         left={(props) => (
                           <List.Icon
                             {...props}

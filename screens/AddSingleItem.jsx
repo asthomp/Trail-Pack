@@ -2,20 +2,21 @@
 
 import { router } from "expo-router";
 import { getAuth } from "firebase/auth";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Avatar, Button, Card, Divider, HelperText } from "react-native-paper";
 
-import CategoryMenu from "./formInputs/CategoryMenu";
-import DisplayText from "./formInputs/DisplayText";
-import Price from "./formInputs/Price";
-import ToggleRow from "./formInputs/ToggleRow";
-import URL from "./formInputs/URL";
-import WeightMenu from "./formInputs/WeightMenu";
 import { useDataContext } from "../utils/DataProvider";
 import { convertWeight, validateURL } from "../utils/dataParser";
+import CategoryMenu from "../views/formInputs/CategoryMenu";
+import DisplayText from "../views/formInputs/DisplayText";
+import NumericInput from "../views/formInputs/NumericInput";
+import Price from "../views/formInputs/Price";
+import ToggleRow from "../views/formInputs/ToggleRow";
+import URL from "../views/formInputs/URL";
+import WeightMenu from "../views/formInputs/WeightMenu";
 
-export default function CreateItem({ toggle }) {
+export default function AddSingleItem({ toggle }) {
   const [error, setError] = useState(null);
   const [productName, setProductName] = useState({ value: "", error: null });
   const [brand, setBrand] = useState({ value: "", error: null });
@@ -36,73 +37,115 @@ export default function CreateItem({ toggle }) {
   const [consumable, setConsumable] = useState(false);
   const [description, setDescription] = useState({ value: "", error: null });
   const [price, setPrice] = useState({ value: "", unit: "$", error: null });
-  const [quantity, setQuantity] = useState({ value: "", error: null });
+  const [quantity, setQuantity] = useState({ value: "1", error: null });
   const [url, setURL] = useState({ value: "", error: null });
   const { refresh, postItem } = useDataContext();
 
-  const hasError = () => {
+  useEffect(() => {
+    if (productName.error === null && weight.error === null) setError(null);
+  }, [productName.value, weight.value]);
+
+  const checkErrorOnSubmit = () => {
+    // Check for required categories
+    if (productName.value.trim() === "") {
+      setProductName({ ...productName, error: "Required section" });
+      return true;
+    }
+
+    if (weight.value.trim() === "" || parseFloat(weight.value) < 0) {
+      setWeight({ ...weight, error: "Required section" });
+      return true;
+    }
+
+    // URL is not required but, if there is a URL, it must be valid.
+    if (url.value.trim() !== "" && !validateURL(url.value)) {
+      setURL({ ...url, error: "Please submit a valid URL" });
+      return true;
+    }
+
     return (
-      productName.error ||
-      brand.error ||
-      category.error ||
-      weight.error ||
-      description.error ||
-      price.error ||
-      quantity.error ||
-      url.error
+      productName.error !== null ||
+      brand.error !== null ||
+      category.error !== null ||
+      weight.error !== null ||
+      description.error !== null ||
+      price.error !== null ||
+      quantity.error !== null ||
+      url.error !== null
     );
   };
 
   const addSingleItem = async function () {
-    // Check URL Validity
-    if (!validateURL(url.value)) {
-      setURL({ ...url, error: "Please submit a valid URL" });
-    }
-
     // Check for errors
-    if (hasError()) {
+    if (checkErrorOnSubmit()) {
       setError("Please correct your input");
     } else {
       setError(null);
-    }
-    // Post the item
-    try {
-      await postItem({
-        product: productName.value,
-        brand: brand.value,
-        category: category.value,
-        categoryIcon: category.icon,
-        displayWeight: weight.value,
-        displayWeightUnit: weight.unit,
-        weight: convertWeight(weight.value, weight.unit),
-        weightUnit: "oz",
-        price: price.value,
-        priceUnit: "$",
-        link: url.value,
-        description: description.value,
-        consumable,
-        nutrition: null,
-        wearable,
-        userID: getAuth().currentUser.uid,
-        quantity: quantity.value,
-      });
-    } catch (error) {
-      console.log(error);
-      setError("500: Failed to post to the database");
-    }
+      // Post the item
+      try {
+        await postItem({
+          product: productName.value,
+          brand: brand.value,
+          category: category.value,
+          categoryIcon: category.icon,
+          displayWeight: weight.value,
+          displayWeightUnit: weight.unit,
+          weight: convertWeight(weight.value, weight.unit),
+          weightUnit: "oz",
+          price: price.value,
+          priceUnit: "$",
+          link: url.value,
+          description: description.value,
+          consumable,
+          nutrition: null,
+          wearable,
+          userID: getAuth().currentUser.uid,
+          quantity: quantity.value,
+        });
 
-    try {
-      await refresh();
-    } catch (error) {
-      console.log(error);
-      setError("500: Failed to refresh data");
-    }
+        try {
+          // Refresh the data
+          await refresh();
 
-    try {
-      router.push("/locker");
-    } catch (error) {
-      console.log(error);
-      setError("500: Failed to navigate");
+          // Reset the form
+          setProductName({ value: "", error: null });
+          setCategory({
+            value: "Packing & Storage",
+            custom: false,
+            error: null,
+            visible: false,
+            icon: "storage",
+            iconVisible: false,
+          });
+
+          setWeight({
+            value: "",
+            unit: "oz",
+            error: null,
+          });
+          setWearable(false);
+          setConsumable(false);
+          setDescription({ value: "", error: null });
+          setBrand({ value: "", error: null });
+          setPrice({ value: "", unit: "$", error: null });
+          setQuantity({ value: "1", error: null });
+          setURL({ value: "", error: null });
+
+          // Navigate to the next page
+          try {
+            router.push("/locker");
+          } catch (err) {
+            console.log(err);
+            setError("500: Failed to navigate");
+          }
+        } catch (err) {
+          console.log(err);
+          setError("500: Failed to refresh data");
+        }
+      } catch (err) {
+        console.log(err);
+        setError("500: Failed to post to the database");
+      }
     }
   };
 
@@ -154,8 +197,17 @@ export default function CreateItem({ toggle }) {
           setCopy={setDescription}
           limit={75}
         />
+
         <DisplayText title="Brand" copy={brand} setCopy={setBrand} limit={25} />
-        <Price price={price} setPrice={setPrice} />
+        <View style={style.formMultipleRow}>
+          <Price price={price} setPrice={setPrice} />
+          <NumericInput
+            title="Quantity"
+            maxNum={10}
+            setNumber={setQuantity}
+            number={quantity}
+          />
+        </View>
         <URL url={url} setURL={setURL} />
       </Card.Content>
       <Card.Actions>
