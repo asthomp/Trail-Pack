@@ -1,17 +1,16 @@
-import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Card, Text } from "react-native-paper";
 
-import Map from "../assets/images/map.jpg";
 import strings from "../assets/strings.json";
+import CategoryStatsPie from "../views/CategoryStatsPie";
+
 export default function Landing() {
   return (
     <View style={style.frontContainer}>
       <Card style={style.frontCard}>
-        <Card.Cover source={Map} />
         <Card.Title title="Welcome" />
         <Card.Content>
-          <Text style={style.frontText}>{strings.loremIpsum}</Text>
+          <Text style={style.packText}>{strings.loremIpsum}</Text>
         </Card.Content>
       </Card>
     </View>

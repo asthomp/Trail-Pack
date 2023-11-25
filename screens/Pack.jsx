@@ -10,13 +10,8 @@ export default function Pack() {
   return (
     <View style={style.packContainer}>
       <Card style={style.packCard}>
-        <Card.Cover source={Tent} resizeMode="cover" />
         <Card.Title title="My Pack" />
         <Card.Content>
-          <Text style={style.packText}>
-            This will be the user's pack. This demonstrates a view with an
-            image.
-          </Text>
           <Text style={style.packText}>{strings.loremIpsum}</Text>
           <LinkButton text="Return Home" link="/home" />
         </Card.Content>

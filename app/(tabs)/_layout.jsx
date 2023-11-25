@@ -18,6 +18,7 @@ export default function TabsLayout() {
       <Tabs
         safeAreaInsets={Platform.select({
           android: { bottom: x.bottom + 10 },
+          web: { bottom: x.bottom + 10 },
           default: {},
         })}
         screenOptions={{
