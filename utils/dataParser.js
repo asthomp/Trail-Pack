@@ -193,7 +193,7 @@ const convertWeight = function (value, unit) {
     return Math.round((value / 28.35 + Number.EPSILON) * 100) / 100;
   }
 
-  return value;
+  return convertNum(value);
 };
 
 // Returns a list of the applications common categories.
@@ -235,6 +235,11 @@ const validateURL = function (url) {
   return isURL(url);
 };
 
+// Remove URL Parameters
+const removeURLTracking = function (url) {
+  return url.replace(/\?.*/, "");
+};
+
 // Converts various units to their shorthand versions.
 const weightUnitParser = function (unit) {
   if (unit === "ounce") {
@@ -248,10 +253,23 @@ const weightUnitParser = function (unit) {
   }
 };
 
+// Converts various units to their shorthand versions.
+const convertNum = function (num) {
+  if (typeof num === "string") {
+    return (Math.round(parseFloat(num) + Number.EPSILON) * 100) / 100;
+  } else if (typeof num === "number") {
+    return num;
+  } else {
+    return false;
+  }
+};
+
 export {
   categoryIconParser,
   convertWeight,
+  convertNum,
   getCategoryList,
   weightUnitParser,
   validateURL,
+  removeURLTracking,
 };

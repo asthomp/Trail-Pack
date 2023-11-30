@@ -13,7 +13,10 @@ export default function NumericInput({
   number,
 }) {
   const [menu, setMenu] = useState(false);
-
+  // TextInputs require strings, even if the data is stored as an integer.
+  if (typeof number.value === "number") {
+    setNumber({ ...number, value: JSON.stringify(number.value) });
+  }
   return (
     <View
       style={{
@@ -36,17 +39,17 @@ export default function NumericInput({
               if (isNaN(+x.replace(/\s/g, ""))) {
                 setNumber({
                   ...number,
-                  value: x.toString(),
+                  value: x,
                   error: "Invalid number",
                 });
               } else if (parseFloat(x) < 1) {
                 setNumber({
                   ...number,
-                  value: x.toString(),
+                  value: x,
                   error: "Invalid quantity",
                 });
               } else {
-                setNumber({ ...number, value: x.toString(), error: null });
+                setNumber({ ...number, value: x, error: null });
               }
             }}
             right={

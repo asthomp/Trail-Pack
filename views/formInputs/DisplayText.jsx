@@ -11,7 +11,7 @@ export default function DisplayText({
   copy,
   setCopy,
   placeholder = null,
-  limit = 25,
+  limit = 50,
 }) {
   return (
     <View>

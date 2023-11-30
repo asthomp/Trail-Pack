@@ -7,7 +7,12 @@ import { StyleSheet, View } from "react-native";
 import { Avatar, Button, Card, Divider, HelperText } from "react-native-paper";
 
 import { useDataContext } from "../utils/DataProvider";
-import { convertWeight, validateURL } from "../utils/dataParser";
+import {
+  convertNum,
+  convertWeight,
+  removeURLTracking,
+  validateURL,
+} from "../utils/dataParser";
 import CategoryMenu from "../views/formInputs/CategoryMenu";
 import DisplayText from "../views/formInputs/DisplayText";
 import NumericInput from "../views/formInputs/NumericInput";
@@ -19,7 +24,6 @@ import WeightMenu from "../views/formInputs/WeightMenu";
 export default function AddSingleItem({ toggle }) {
   const [error, setError] = useState(null);
   const [productName, setProductName] = useState({ value: "", error: null });
-  const [brand, setBrand] = useState({ value: "", error: null });
   const [category, setCategory] = useState({
     value: "Packing & Storage",
     custom: false,
@@ -36,11 +40,13 @@ export default function AddSingleItem({ toggle }) {
   const [wearable, setWearable] = useState(false);
   const [consumable, setConsumable] = useState(false);
   const [description, setDescription] = useState({ value: "", error: null });
+  const [brand, setBrand] = useState({ value: "", error: null });
   const [price, setPrice] = useState({ value: "", unit: "$", error: null });
-  const [quantity, setQuantity] = useState({ value: "1", error: null });
+  const [quantity, setQuantity] = useState({ value: 1, error: null });
   const [url, setURL] = useState({ value: "", error: null });
   const { refresh, postItem } = useDataContext();
 
+  // Clear error if people are trying to edit input
   useEffect(() => {
     if (productName.error === null && weight.error === null) setError(null);
   }, [productName.value, weight.value]);
@@ -88,19 +94,19 @@ export default function AddSingleItem({ toggle }) {
           brand: brand.value,
           category: category.value,
           categoryIcon: category.icon,
-          displayWeight: weight.value,
+          displayWeight: convertNum(weight.value),
           displayWeightUnit: weight.unit,
           weight: convertWeight(weight.value, weight.unit),
           weightUnit: "oz",
-          price: price.value,
+          price: convertNum(price.value),
           priceUnit: "$",
-          link: url.value,
+          link: removeURLTracking(url.value),
           description: description.value,
           consumable,
           nutrition: null,
           wearable,
           userID: getAuth().currentUser.uid,
-          quantity: quantity.value,
+          quantity: convertNum(quantity.value),
         });
 
         try {

@@ -72,6 +72,20 @@ export default function DataContextProvider({ children }) {
     return results;
   };
 
+  // Update Item -> Given an item, update it in the database.
+  const updateItem = async function (itemID, item) {
+    try {
+      const docRef = doc(db, "items", itemID);
+      await updateDoc(docRef, {
+        ...item,
+        timestamp: serverTimestamp(),
+      });
+      console.log("200: Item update successful.");
+    } catch (error) {
+      console.error(`500: Error updating ${itemID}`, error);
+    }
+  };
+
   // DELETE ITEM
   const deleteItem = async function (itemID) {
     const docRef = doc(db, "items", itemID);
@@ -80,7 +94,7 @@ export default function DataContextProvider({ children }) {
       refresh();
       return true;
     } catch (error) {
-      console.log(`500: Error deleting ${itemID}`);
+      console.error(`500: Error deleting ${itemID}`, error);
       return false;
     }
   };
@@ -123,6 +137,7 @@ export default function DataContextProvider({ children }) {
         getItems,
         deleteItem,
         getStats,
+        updateItem,
       }}
     >
       {children}

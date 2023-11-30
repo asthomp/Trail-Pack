@@ -2,7 +2,6 @@ import { StyleSheet, View } from "react-native";
 import { Card, Text } from "react-native-paper";
 
 import strings from "../assets/strings.json";
-import CategoryStatsPie from "../views/CategoryStatsPie";
 
 export default function Landing() {
   return (

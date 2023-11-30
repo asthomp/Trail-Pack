@@ -22,7 +22,6 @@ export default function CategoryMenu({ category, setCategory }) {
     <>
       <View style={style.formCategoryRow}>
         <Menu
-          style={style.formInputPositioning}
           visible={iconVisible}
           onDismiss={() => setIconVisible(false)}
           anchorPosition="bottom"
