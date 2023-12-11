@@ -2,196 +2,189 @@ import { router } from "expo-router";
 import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import {
-  Button,
-  Card,
-  IconButton,
-  HelperText,
-  Divider,
-} from "react-native-paper";
+import { Button, Card, IconButton, HelperText } from "react-native-paper";
 
 import { useDataContext } from "../utils/DataProvider";
 import {
-  convertNum,
+  convertStringToNum,
   convertWeight,
   removeURLTracking,
   validateURL,
 } from "../utils/dataParser";
 import Loading from "../views/Loading";
-import CategoryMenu from "../views/formInputs/CategoryMenu";
-import DisplayText from "../views/formInputs/DisplayText";
-import NumericInput from "../views/formInputs/NumericInput";
-import Price from "../views/formInputs/Price";
-import ToggleRow from "../views/formInputs/ToggleRow";
-import URL from "../views/formInputs/URL";
-import WeightMenu from "../views/formInputs/WeightMenu";
-export default function EditItem({ item }) {
-  const [productName, setProductName] = useState({ value: "", error: null });
-  const [category, setCategory] = useState({
-    value: "",
-    custom: false,
-    error: null,
-    visible: false,
-    icon: "",
-    iconVisible: false,
-  });
-  const [weight, setWeight] = useState({
-    value: "",
-    unit: "",
-    error: null,
-  });
-  const [wearable, setWearable] = useState(false);
-  const [consumable, setConsumable] = useState(false);
-  const [description, setDescription] = useState({ value: "", error: null });
-  const [brand, setBrand] = useState({ value: "", error: null });
-  const [price, setPrice] = useState({ value: "", unit: "$", error: null });
-  const [quantity, setQuantity] = useState({ value: "1", error: null });
-  const [url, setURL] = useState({ value: "", error: null });
+import Form from "../views/formInputs/Form";
 
-  const { refresh, updateItem } = useDataContext();
-  const [error, setError] = useState(null);
-
-  // Whenever the "item" in focus changes, update.
-  useEffect(() => {
-    setProductName({ ...productName, value: item.product });
-
-    setCategory({
-      value: item.category,
-      custom: false,
-      error: null,
-      visible: false,
-      icon: item.categoryIcon,
-      iconVisible: false,
-    });
-    setWeight({
-      ...weight,
-      value: item.displayWeight,
-      unit: item.displayWeightUnit,
-    });
-
-    setConsumable(item.consumable);
-    setWearable(item.wearable);
-    setDescription({
-      ...description,
-      value: item.description,
-    });
-    setBrand({ ...brand, value: item.brand });
-    setPrice({ ...price, value: item.price });
-    setQuantity({ ...quantity, value: item.quantity });
-    setURL({ ...url, value: item.link });
-  }, [item]);
-
-  // Clear errors if people are trying to edit input
-  useEffect(() => {
-    if (productName.error === null && weight.error === null) setError(null);
-  }, [productName.value, weight.value]);
-
-  const checkErrorOnSubmit = () => {
-    // Check for required categories
-    if (productName.value.trim() === "") {
-      setProductName({ ...productName, error: "Required section" });
-      return true;
-    }
-
-    if (weight.value.trim() === "" || parseFloat(weight.value) < 0) {
-      setWeight({ ...weight, error: "Required section" });
-      return true;
-    }
-
-    // URL is not required but, if there is a URL, it must be valid.
-    if (url.value.trim() !== "" && !validateURL(url.value)) {
-      setURL({ ...url, error: "Please submit a valid URL" });
-      return true;
-    }
-
-    return (
-      productName.error !== null ||
-      brand.error !== null ||
-      category.error !== null ||
-      weight.error !== null ||
-      description.error !== null ||
-      price.error !== null ||
-      quantity.error !== null ||
-      url.error !== null
-    );
+export default function EditItem({ itemID }) {
+  const { getItem, updateItem } = useDataContext();
+  const baseItem = {
+    brand: {
+      error: undefined,
+      focused: false,
+      value: "",
+    },
+    category: {
+      error: undefined,
+      focused: false,
+      value: "Packing & Storage",
+      icon: "packing",
+    },
+    formError: undefined,
+    productName: {
+      error: undefined,
+      focused: false,
+      value: "",
+    },
+    price: {
+      error: undefined,
+      focused: false,
+      value: "",
+    },
+    quantity: {
+      error: undefined,
+      focused: false,
+      value: "",
+    },
+    url: {
+      error: undefined,
+      focused: false,
+      value: "",
+    },
+    wearable: false,
+    consumable: false,
+    nutritionFacts: { value: "", error: undefined },
+    description: {
+      error: undefined,
+      focused: false,
+      value: "",
+    },
+    weight: {
+      error: undefined,
+      focused: false,
+      value: "1",
+      unit: "oz",
+    },
   };
+  const [item, setItem] = useState(baseItem);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    setLoading(true);
+    const originItem = getItem(itemID, true);
 
-  const processEditItem = async function () {
-    // Check for errors
-    if (checkErrorOnSubmit()) {
-      setError("Please correct your input");
+    setItem({
+      ...item,
+      brand: { ...item.brand, value: originItem.brand },
+      category: {
+        ...item.category,
+        value: originItem.category,
+        icon: originItem.categoryIcon,
+      },
+      consumable: originItem.consumable,
+      description: {
+        ...item.description,
+        value: !originItem.description ? "" : originItem.description,
+      },
+      price: { ...item.price, value: originItem.price.toString() },
+      productName: { ...item.productName, value: originItem.product },
+      quantity: { ...item.quantity, value: originItem.quantity.toString() },
+      url: {
+        ...item.url,
+        value: !originItem.link ? "" : originItem.link,
+      },
+      wearable: originItem.wearable,
+      weight: {
+        ...item.weight,
+        value: originItem.displayWeight.toString(),
+        unit: originItem.displayWeightUnit,
+      },
+    });
+    setLoading(false);
+  }, [itemID]);
+
+  const updateItemState = (item) => {
+    if (item.productName.value?.trim().length > 50) {
+      item.productName.error = "Exceeded character limit (50)";
+    } else if (
+      item.productName.value.trim().length < 1 &&
+      !item.productName.focused
+    ) {
+      item.productName.error = "Required input";
     } else {
-      setError(null);
-      // Post the item
-      try {
-        await updateItem(item.itemID, {
-          product: productName.value,
-          brand: brand.value,
-          category: category.value,
-          categoryIcon: category.icon,
-          displayWeight: convertNum(weight.value),
-          displayWeightUnit: weight.unit,
-          weight: convertWeight(weight.value, weight.unit),
-          weightUnit: "oz",
-          price: convertNum(price.value),
-          priceUnit: "$",
-          link: removeURLTracking(url.value),
-          description: description.value,
-          consumable,
-          nutrition: null,
-          wearable,
-          userID: getAuth().currentUser.uid,
-          quantity: convertNum(quantity.value),
-        });
-
-        try {
-          // Refresh the data
-          await refresh();
-
-          // Reset the form
-          setProductName({ value: "", error: null });
-          setCategory({
-            value: "Packing & Storage",
-            custom: false,
-            error: null,
-            visible: false,
-            icon: "storage",
-            iconVisible: false,
-          });
-
-          setWeight({
-            value: "",
-            unit: "oz",
-            error: null,
-          });
-          setWearable(false);
-          setConsumable(false);
-          setDescription({ value: "", error: null });
-          setBrand({ value: "", error: null });
-          setPrice({ value: "", unit: "$", error: null });
-          setQuantity({ value: "1", error: null });
-          setURL({ value: "", error: null });
-
-          // Navigate to the next page
-          try {
-            router.push("/locker");
-          } catch (err) {
-            console.log(err);
-            setError("500: Failed to navigate");
-          }
-        } catch (err) {
-          console.log(err);
-          setError("500: Failed to refresh data");
-        }
-      } catch (err) {
-        console.log(err);
-        setError("500: Failed to post to the database");
-      }
+      item.productName.error = undefined;
     }
+
+    if (item.weight.value && isNaN(Number(item.weight.value))) {
+      item.weight.error = "Invalid number";
+    } else if (
+      item.weight.value < 0 ||
+      (item.weight.unit === "lbs" && item.weight.value > 300) ||
+      (item.weight.unit === "oz" && item.weight.value > 4801) ||
+      (item.weight.unit === "g" && item.weight.value > 136078)
+    ) {
+      switch (item.weight.unit) {
+        case "lbs":
+          item.weight.error = "Invalid weight (0-300)";
+          break;
+        case "oz":
+          item.weight.error = "Invalid weight (0-4801)";
+          break;
+        case "g":
+          item.weight.error = "Invalid weight (0-136078)";
+          break;
+        default:
+          item.weight.error = "Invalid weight";
+      }
+    } else {
+      item.weight.error = undefined;
+    }
+
+    if (item.description.value?.trim().length > 50) {
+      item.description.error = "Exceeded character limit (50)";
+    } else {
+      item.description.error = undefined;
+    }
+
+    if (item.brand.value?.trim().length > 25) {
+      item.brand.error = "Exceeded character limit (25)";
+    } else {
+      item.brand.error = undefined;
+    }
+
+    if (item.price.value && isNaN(Number(item.price.value))) {
+      item.price.error = "Invalid amount";
+    } else if (item.price.value < 0 || item.price.value > 10000) {
+      item.price.error = "Invalid amount (0-10000)";
+    } else {
+      item.price.error = undefined;
+    }
+
+    if (item.quantity.value && isNaN(Number(item.quantity.value))) {
+      item.quantity.error = "Invalid number";
+    } else if (item.quantity.value < 0 || item.quantity.value > 30) {
+      item.quantity.error = "Invalid quantity (0-30)";
+    } else {
+      item.quantity.error = undefined;
+    }
+
+    if (item.url.value?.trim() !== "" && !validateURL(item.url.value)) {
+      item.url.error = "Invalid URL";
+    } else {
+      item.url.error = undefined;
+    }
+
+    if (
+      Object.keys(item).some((x) => {
+        return item[x]?.error !== undefined && item[x]?.error !== null;
+      })
+    ) {
+      item.formError = "Please correct your input";
+    } else {
+      item.formError = undefined;
+    }
+    setItem(item);
   };
   return (
-    <ScrollView>
-      {productName ? (
+    <ScrollView key={itemID}>
+      {item && (
         <Card style={style.editItemCard}>
           <Card.Title
             title="Edit Item"
@@ -205,8 +198,7 @@ export default function EditItem({ item }) {
                   router.push({
                     pathname: "locker/[itemID]",
                     params: {
-                      itemID: item.itemID,
-                      item: JSON.stringify(item),
+                      itemID,
                     },
                   });
                 }}
@@ -214,52 +206,7 @@ export default function EditItem({ item }) {
             )}
           />
           <Card.Content>
-            <DisplayText
-              title="Product Name"
-              copy={productName}
-              setCopy={setProductName}
-            />
-            <Divider style={style.divider} />
-            <CategoryMenu category={category} setCategory={setCategory} />
-            <Divider style={style.divider} />
-            <WeightMenu weight={weight} setWeight={setWeight} />
-            <Divider style={style.divider} />
-            <ToggleRow
-              title="Wearable?"
-              toggle={wearable}
-              setToggle={setWearable}
-            />
-            <Divider style={style.divider} />
-            <ToggleRow
-              title="Consumable?"
-              toggle={consumable}
-              setToggle={setConsumable}
-            />
-            <Divider style={style.divider} />
-            <DisplayText
-              title="Description"
-              copy={description}
-              setCopy={setDescription}
-              limit={75}
-            />
-
-            <DisplayText
-              title="Brand"
-              copy={brand}
-              setCopy={setBrand}
-              limit={25}
-            />
-
-            <View style={style.formMultipleRow}>
-              <Price price={price} setPrice={setPrice} />
-              <NumericInput
-                title="Quantity"
-                maxNum={10}
-                setNumber={setQuantity}
-                number={quantity}
-              />
-            </View>
-            <URL url={url} setURL={setURL} />
+            <Form item={item} updateItemState={updateItemState} />
           </Card.Content>
           <Card.Actions>
             <View
@@ -269,25 +216,67 @@ export default function EditItem({ item }) {
                 alignItems: "flex-end",
               }}
             >
-              <Button
-                style={{ width: 100, marginRight: 10 }}
-                icon="content-save"
-                mode="contained"
-                onPress={() => {
-                  processEditItem();
-                }}
-              >
-                Save
-              </Button>
+              {loading ? (
+                <Loading />
+              ) : (
+                <Button
+                  style={{ width: 100, marginRight: 10 }}
+                  icon="content-save"
+                  mode="contained"
+                  onPress={async () => {
+                    if (!item.formError) {
+                      setLoading(true);
+                      const updatedItem = {
+                        product: item.productName.value,
+                        brand: item.brand.value,
+                        category: item.category.value,
+                        categoryIcon: item.category.icon,
+                        displayWeight: convertStringToNum(item.weight.value),
+                        displayWeightUnit: item.weight.unit,
+                        weight: convertWeight(
+                          item.weight.value,
+                          item.weight.unit,
+                        ),
+                        weightUnit: "oz",
+                        price: convertStringToNum(item.price.value).toFixed(2),
+                        priceUnit: "$",
+                        link: removeURLTracking(item.url.value),
+                        description: item.description.value,
+                        consumable: item.consumable,
+                        nutrition: null,
+                        wearable: item.wearable,
+                        userID: getAuth().currentUser.uid,
+                        quantity: convertStringToNum(item.quantity.value),
+                      };
+                      const result = await updateItem(itemID, updatedItem);
 
-              <HelperText type="error" visible={!!error}>
-                {error}
+                      if (result) {
+                        setLoading(false);
+                        router.push({
+                          pathname: "locker/[itemID]",
+                          params: {
+                            itemID,
+                          },
+                        });
+                      } else {
+                        updateItemState({
+                          ...item,
+                          formError: "Failed to update item",
+                        });
+                      }
+                    }
+                  }}
+                >
+                  Save
+                </Button>
+              )}
+
+              <HelperText type="error" visible={!!item.formError}>
+                {item.formError}
               </HelperText>
             </View>
           </Card.Actions>
         </Card>
-      ) : (
-        <Loading />
       )}
     </ScrollView>
   );
@@ -307,6 +296,6 @@ const style = StyleSheet.create({
     paddingBottom: 5,
   },
   divider: {
-    margin: 5,
+    marginBottom: 10,
   },
 });

@@ -5,13 +5,13 @@ import { Button, Dialog, Portal, Text } from "react-native-paper";
 
 import Loading from "./Loading";
 
-export default function DeleteModal({
+export default function AlertModal({
   title,
   message,
   visible,
   setVisible,
   callback,
-  callbackTitle,
+  callbackButtonTitle,
   route,
 }) {
   const [loading, setLoading] = useState(false);
@@ -35,13 +35,16 @@ export default function DeleteModal({
             <Button
               onPress={async () => {
                 setLoading(true);
-                await callback();
-                setLoading(false);
-                setVisible(false);
-                route ? router.push(route) : null;
+                if (await callback()) {
+                  setLoading(false);
+                  setVisible(false);
+                  if (route) {
+                    router.push(route);
+                  }
+                }
               }}
             >
-              {callbackTitle}
+              {callbackButtonTitle}
             </Button>
           ) : null}
         </Dialog.Actions>

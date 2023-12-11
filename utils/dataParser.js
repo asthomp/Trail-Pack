@@ -193,7 +193,7 @@ const convertWeight = function (value, unit) {
     return Math.round((value / 28.35 + Number.EPSILON) * 100) / 100;
   }
 
-  return convertNum(value);
+  return value;
 };
 
 // Returns a list of the applications common categories.
@@ -254,22 +254,27 @@ const weightUnitParser = function (unit) {
 };
 
 // Converts various units to their shorthand versions.
-const convertNum = function (num) {
-  if (typeof num === "string") {
+const convertStringToNum = function (num) {
+  if (typeof num === "string" && num.length > 0) {
     return (Math.round(parseFloat(num) + Number.EPSILON) * 100) / 100;
   } else if (typeof num === "number") {
     return num;
   } else {
-    return false;
+    return 0.0;
   }
+};
+
+const createRange = function (start, end) {
+  return Array.from({ length: end - start + 1 }, (_, i) => i + start);
 };
 
 export {
   categoryIconParser,
   convertWeight,
-  convertNum,
+  convertStringToNum,
   getCategoryList,
   weightUnitParser,
   validateURL,
   removeURLTracking,
+  createRange,
 };

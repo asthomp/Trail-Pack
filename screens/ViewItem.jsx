@@ -6,8 +6,8 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { Card, Divider, IconButton, List, Text } from "react-native-paper";
 
 import { useDataContext } from "../utils/DataProvider";
+import AlertModal from "../views/AlertModal";
 import CategoryIcon from "../views/CategoryIcon";
-import DeleteModal from "../views/DeleteModal";
 import CategoryListItem from "../views/viewItemElements/CategoryListItem";
 import ConsumableListItem from "../views/viewItemElements/ConsumableListItem";
 import DescriptionSummary from "../views/viewItemElements/DescriptionSummary";
@@ -16,10 +16,14 @@ import ViewNutritionFacts from "../views/viewItemElements/ViewNutritionFacts";
 import WearableListItem from "../views/viewItemElements/WearableListItem";
 import WeightListItem from "../views/viewItemElements/WeightListItem";
 
-export default function ViewItem({ item }) {
+export default function ViewItem({ itemID }) {
+  const { getItem, deleteItem } = useDataContext();
   const [deleteWindow, setDeleteWindow] = useState(false);
   const [debugWindow, setDebugWindow] = useState(false);
-  const { deleteItem } = useDataContext();
+  const item = getItem(itemID, true);
+  if (item === undefined || item === null) {
+    return null;
+  }
   return (
     <ScrollView style={{ margin: 20 }}>
       <Card style={{ marginBottom: 20 }}>
@@ -51,7 +55,7 @@ export default function ViewItem({ item }) {
                 router.push({
                   pathname: "locker/edit",
                   params: {
-                    item: JSON.stringify(item),
+                    itemID,
                   },
                 });
               }}
@@ -114,8 +118,8 @@ export default function ViewItem({ item }) {
           </View>
         </Card.Actions>
       </Card>
-      <ViewNutritionFacts item={item} />
-      <DeleteModal
+      {item.nutritionFacts && <ViewNutritionFacts item={item} />}
+      <AlertModal
         visible={deleteWindow}
         setVisible={setDeleteWindow}
         message="Are you sure you want to delete this item? It'll be gone
@@ -123,11 +127,11 @@ export default function ViewItem({ item }) {
         title="Delete Item"
         route="/locker"
         callback={async () => {
-          await deleteItem(item.itemID);
+          return await deleteItem(item.itemID);
         }}
-        callbackTitle="Delete"
+        callbackButtonTitle="Delete"
       />
-      <DeleteModal
+      <AlertModal
         visible={debugWindow}
         setVisible={setDebugWindow}
         message={JSON.stringify(item, null, 2)}
