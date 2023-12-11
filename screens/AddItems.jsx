@@ -3,10 +3,10 @@
 import React, { useState } from "react";
 import { ScrollView } from "react-native";
 
-import AddSingleItem from "./AddSingleItem";
 import BulkImport from "./BulkImport";
+import NewItem from "./NewItem";
 
-export default function AddItem() {
+export default function AddItems() {
   const [toggleMode, setToggleMode] = useState(true);
   const toggle = () =>
     toggleMode ? setToggleMode(false) : setToggleMode(true);
@@ -14,7 +14,7 @@ export default function AddItem() {
     <ScrollView>
       <>
         {toggleMode ? (
-          <AddSingleItem toggle={toggle} />
+          <NewItem toggle={toggle} />
         ) : (
           <BulkImport toggle={toggle} />
         )}

@@ -1,4 +1,4 @@
-// Given a category, attempts to retun an appropriate icon.
+// Given a category, attempts to return an appropriate icon.
 import {
   Entypo,
   Feather,
@@ -9,10 +9,8 @@ import {
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import React from "react";
-import { StyleSheet } from "react-native";
 
 export default function CategoryIcon({ category, size, color }) {
-  category = category.toLowerCase();
   if (category === "tent") {
     return <Fontisto name="tent" size={size} color={color} />;
   } else if (category === "sleep") {
@@ -63,16 +61,9 @@ export default function CategoryIcon({ category, size, color }) {
     return <Entypo name="wallet" size={size} color={color} />;
   } else if (category === "mountain") {
     return <FontAwesome5 name="mountain" size={size} color={color} />;
+  } else if (category === "select") {
+    return <Entypo name="select-arrows" size={size} color={color} />;
   } else {
     return <Ionicons name="folder" size={size} color={color} />;
   }
 }
-
-const style = StyleSheet.create({
-  fabContainer: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

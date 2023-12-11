@@ -5,12 +5,13 @@ import {
   addDoc,
   collection,
   deleteDoc,
+  doc,
+  getDoc,
   getDocs,
   getFirestore,
   query,
   serverTimestamp,
   updateDoc,
-  doc,
   where,
 } from "firebase/firestore";
 import * as React from "react";
@@ -19,50 +20,73 @@ import { createContext, useContext, useEffect, useState } from "react";
 export const DataContext = createContext(null);
 
 export default function DataContextProvider({ children }) {
-  const [data, setData] = useState({
-    items: [],
-    packs: [],
+  // The data cache stores query data and allows it to be used by child
+  // components; it also reduces the required number of database queries.
+  const [dataCache, setDataCache] = useState({
+    items: null,
+    packs: null,
     error: null,
   });
   const db = getFirestore();
+
+  // Preload the cache on launch.
   useEffect(() => {
-    refresh();
+    loadCache();
   }, []);
 
-  // Refresh data by querying the database
-  const refresh = (orderBy = "timestamp", order = "asc") => {
-    const user = getAuth();
-    getItems(user.currentUser.uid).then(async (x) => {
-      await setData({ ...data, items: sortArray(x, orderBy, order) });
-    });
+  // Manually refresh/load the cache.
+  const loadCache = async function () {
+    return await getItems();
   };
 
-  // Sort existing data
-  const resort = async (
-    target = "items",
-    orderBy = "timestamp",
-    order = "asc",
-  ) => {
-    if (data[target].length > 0) {
-      await setData({
-        ...data,
-        items: sortArray(data[target], orderBy, order),
-      });
-    }
-  };
-
-  // CREATE ITEM -> Post an item to the database.
+  // CREATE ITEM -> Post an item to the database; returns the ID of the newly-created item.
+  // Items added to the database do not have an itemID field; it is in the document ID.
   const postItem = async function (item) {
-    const docRef = await addDoc(collection(db, "items"), item);
-    await updateDoc(docRef, {
+    const docRef = await addDoc(collection(db, "items"), {
+      ...removeItemID(item),
       timestamp: serverTimestamp(),
     });
-    return docRef;
+    const doc = await getDoc(docRef);
+    _addItemToCache(doc.id, doc.data());
+    return doc.id;
   };
 
-  // READ ITEMS -> Retrieve all of a user's items.
-  const getItems = async function (userID) {
-    const q = query(collection(db, "items"), where("userID", "==", userID));
+  // Given an item, add it to the local cache.
+  // All items added to the cache must have an itemID.
+  const _addItemToCache = function (itemID, item) {
+    const result = Array.from(dataCache.items);
+    result.push({ ...item, itemID });
+    setDataCache({
+      ...dataCache,
+      items: _sortArray(result),
+    });
+  };
+
+  // READ ITEMS -> Retrieves the authenticated user's items.
+  // There is an optional Boolean to toggle whether-or-not to use the cache or query the database.
+  // The function defaults to querying the database.
+  const getItems = async (
+    orderBy = "timestamp",
+    order = "asc",
+    cache = false,
+  ) => {
+    if (cache) {
+      return dataCache.items;
+    }
+    const result = await _getItems();
+    await setDataCache({
+      ...dataCache,
+      items: _sortArray(result, orderBy, order),
+    });
+    return dataCache.items;
+  };
+
+  // Queries the database for all items associated with the authenticated user.
+  const _getItems = async function () {
+    const q = query(
+      collection(db, "items"),
+      where("userID", "==", getAuth().currentUser.uid),
+    );
 
     const querySnapshot = await getDocs(q);
     const results = [];
@@ -72,22 +96,92 @@ export default function DataContextProvider({ children }) {
     return results;
   };
 
-  // DELETE ITEM
-  const deleteItem = async function (itemID) {
-    const docRef = doc(db, "items", itemID);
+  // READ ITEM -> Retrieves an item from the cache.
+  const getItem = (itemID) => {
+    // If the user specifies using the cache, return the item without a database query.
+    if (dataCache.items) {
+      return dataCache.items.filter((x) => x.itemID === itemID)[0];
+    }
+    return false;
+  };
+
+  // SORT ITEMS -> Sorts items in the data cache.
+  const sortItems = async (orderBy = "timestamp", order = "asc") => {
+    if (dataCache["items"].length > 0) {
+      await setDataCache({
+        ...dataCache,
+        items: _sortArray(dataCache["items"], orderBy, order),
+      });
+    }
+    return dataCache;
+  };
+
+  // UPDATE ITEM -> Given an item, updates it in both the database and local cache.
+  const updateItem = async function (itemID, item) {
     try {
-      await deleteDoc(docRef);
-      refresh();
-      return true;
+      const docRef = doc(db, "items", itemID);
+      const timestampedItem = {
+        ...item,
+        timestamp: serverTimestamp(),
+      };
+      await updateDoc(docRef, removeItemID(timestampedItem));
+      _updateItemInCache(itemID, timestampedItem);
+      return timestampedItem;
     } catch (error) {
-      console.log(`500: Error deleting ${itemID}`);
+      console.error(`500: Error updating ${itemID}`, error);
       return false;
     }
   };
 
+  // Updates the edited item in the cache in order to bypass future querying of the database.
+  // All items being added to the cache must contain an itemID.
+  const _updateItemInCache = function (itemID, item) {
+    setDataCache({
+      ...dataCache,
+      items: dataCache.items.map((x) => {
+        if (x.itemID === itemID) {
+          return { ...item, itemID };
+        } else {
+          return x;
+        }
+      }),
+    });
+  };
+
+  // DELETE ITEM -> Delete an item from the database and remove it from the local cache.
+  const deleteItem = async function (itemID) {
+    const docRef = doc(db, "items", itemID);
+    try {
+      await deleteDoc(docRef);
+      _removeItemFromCache(itemID);
+      return true;
+    } catch (error) {
+      console.error(`500: Error deleting ${itemID}`, error);
+      return false;
+    }
+  };
+
+  // Remove an item from the cache to circumvent re-querying the database
+  const _removeItemFromCache = function (itemID) {
+    setDataCache({
+      ...dataCache,
+      items: dataCache.items.filter((x) => x.itemID !== itemID),
+    });
+    return dataCache.items;
+  };
+
   return (
     <DataContext.Provider
-      value={{ data, refresh, resort, postItem, getItems, deleteItem }}
+      value={{
+        dataCache,
+        loadCache,
+        postItem,
+        getItems,
+        getItem,
+        sortItems,
+        updateItem,
+        deleteItem,
+      }}
     >
       {children}
     </DataContext.Provider>
@@ -104,8 +198,8 @@ export function useDataContext() {
   return context;
 }
 
-// SORT
-function sortArray(array, orderBy, order) {
+// Helper Functions
+function _sortArray(array, orderBy, order) {
   let comparator = undefined;
   switch (orderBy) {
     case "timestamp":
@@ -139,3 +233,11 @@ function sortArray(array, orderBy, order) {
   const newArray = Array.from(array);
   return newArray.sort(comparator);
 }
+
+// Removes the "itemID" key from an object; this field is stored in the database as a document ID, not as a field.
+const removeItemID = function (item) {
+  if ("itemID" in item) {
+    delete item.itemID;
+  }
+  return item;
+};

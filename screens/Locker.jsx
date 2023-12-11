@@ -17,9 +17,9 @@ export default function Locker() {
   const [orderBy, setOrderBy] = useState("timestamp");
   const [order, setOrder] = useState("asc");
 
-  const { data, resort } = useDataContext();
+  const { dataCache, sortItems } = useDataContext();
   useEffect(() => {
-    resort("items", orderBy, order);
+    sortItems(orderBy, order);
   }, [order, orderBy]);
 
   const getIcon = function (type) {
@@ -34,7 +34,7 @@ export default function Locker() {
 
   return (
     <View style={style.lockerContainer}>
-      {!data.items ? (
+      {!dataCache.items ? (
         <Loading />
       ) : (
         <>
@@ -110,8 +110,8 @@ export default function Locker() {
                 alignItems: "stretch",
               }}
             >
-              {data.items.length > 0 ? (
-                data.items.map((x) => {
+              {dataCache.items.length > 0 ? (
+                dataCache.items.map((x) => {
                   return (
                     <View key={"ID#" + x.itemID + "-section''"}>
                       <List.Item
@@ -120,7 +120,6 @@ export default function Locker() {
                             pathname: "locker/[itemID]",
                             params: {
                               itemID: x.itemID,
-                              item: JSON.stringify(x),
                             },
                           })
                         }

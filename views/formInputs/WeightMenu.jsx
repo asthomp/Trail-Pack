@@ -8,6 +8,12 @@ import { Divider, HelperText, Menu, TextInput } from "react-native-paper";
 
 export default function WeightMenu({ weight, setWeight }) {
   const [menu, setMenu] = useState(false);
+
+  // TextInputs require strings, even if the data is stored as an integer.
+  if (typeof weight.value === "number") {
+    setWeight({ ...weight, value: JSON.stringify(weight.value) });
+  }
+
   return (
     <>
       <View style={style.formMultipleRow}>
@@ -25,7 +31,7 @@ export default function WeightMenu({ weight, setWeight }) {
               setWeight({
                 ...weight,
                 value: x,
-                error: "Please enter a valid number",
+                error: "Invalid number",
               });
             }
           }}

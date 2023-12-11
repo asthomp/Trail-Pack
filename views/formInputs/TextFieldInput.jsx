@@ -1,24 +1,31 @@
-// This component returns a form control that allows a user to input a certain amount of text.
-// It receives an object in the form of {value: x, error: y} (and a setState). It returns the form control.
-// It can be used to create new items or edit existing items.
-
+// A generic form control for inputting text.
 import React from "react";
 import { View } from "react-native";
 import { HelperText, TextInput } from "react-native-paper";
 
-export default function DisplayText({
+export default function TextFieldInput({
   title = "",
   text,
   onTextChange,
   onFocusChange,
   error,
   style,
+  hideError = false,
+  prefix = null,
+  icon = null,
 }) {
+  let leading = undefined;
+  if (icon !== null) {
+    leading = <TextInput.Icon icon={icon} style={{ pointerEvents: "none" }} />;
+  } else if (prefix !== null) {
+    leading = <TextInput.Affix text={prefix} />;
+  }
   return (
     <View style={style}>
       <TextInput
         mode="outlined"
         label={title}
+        left={leading}
         value={text}
         error={!!error}
         onChangeText={(x) => {
@@ -27,9 +34,11 @@ export default function DisplayText({
         onFocus={() => onFocusChange(true)}
         onBlur={() => onFocusChange(false)}
       />
-      <HelperText type="error" visible={!!error}>
-        {error}
-      </HelperText>
+      {!hideError && (
+        <HelperText type="error" visible={!!error}>
+          {error}
+        </HelperText>
+      )}
     </View>
   );
 }

@@ -235,6 +235,11 @@ const validateURL = function (url) {
   return isURL(url);
 };
 
+// Remove URL Parameters
+const removeURLTracking = function (url) {
+  return url.replace(/\?.*/, "");
+};
+
 // Converts various units to their shorthand versions.
 const weightUnitParser = function (unit) {
   if (unit === "ounce") {
@@ -248,10 +253,28 @@ const weightUnitParser = function (unit) {
   }
 };
 
+// Converts various units to their shorthand versions.
+const convertStringToNum = function (num) {
+  if (typeof num === "string" && num.length > 0) {
+    return (Math.round(parseFloat(num) + Number.EPSILON) * 100) / 100;
+  } else if (typeof num === "number") {
+    return num;
+  } else {
+    return 0.0;
+  }
+};
+
+const createRange = function (start, end) {
+  return Array.from({ length: end - start + 1 }, (_, i) => i + start);
+};
+
 export {
   categoryIconParser,
   convertWeight,
+  convertStringToNum,
   getCategoryList,
   weightUnitParser,
   validateURL,
+  removeURLTracking,
+  createRange,
 };
