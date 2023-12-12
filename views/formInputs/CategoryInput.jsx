@@ -1,9 +1,9 @@
-// A form input that manages categories and icons specific to Trail Pack.
+// A form input that allows a user to pick a custom or preset category (which will include an icon and label).
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { Divider, IconButton, Menu, TextInput } from "react-native-paper";
 
-import { getCategoryList } from "../../utils/dataParser";
+import { getPresetCategories } from "../../utils/categoryPresets";
 import CategoryIcon from "../CategoryIcon";
 
 export default function CategoryInput({
@@ -37,7 +37,7 @@ export default function CategoryInput({
             />
           }
         >
-          {getCategoryList().map((x) => {
+          {getPresetCategories().map((x) => {
             return (
               <View key={"Category Icon Selection =" + x.title}>
                 <Menu.Item
@@ -83,7 +83,7 @@ export default function CategoryInput({
               />
             }
           >
-            {getCategoryList().map((x) => {
+            {getPresetCategories().map((x) => {
               return (
                 <View key={"Category Selection Menu =" + x.title}>
                   <Menu.Item
