@@ -11,7 +11,7 @@ export default function Pack() {
       <Card style={style.packCard}>
         <Card.Title title="My Pack" />
         <Card.Content>
-          <Text style={style.packText}>{strings.loremIpsum}</Text>
+          <Text style={style.packText}>{strings.loremIpsum}asdf</Text>
           <LinkButton text="Return Home" link="/home" />
         </Card.Content>
       </Card>
