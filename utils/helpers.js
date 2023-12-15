@@ -71,10 +71,85 @@ const createRange = function (start, end) {
   return Array.from({ length: end - start + 1 }, (_, i) => i + start);
 };
 
+// Removes the "itemID" key from an object; this field is stored in the database as a document ID, not as a field.
+const removeItemID = function (item) {
+  if ("itemID" in item) {
+    delete item.itemID;
+  }
+  return item;
+};
+
 // Remove URL tracking parameters
 const removeURLTracking = function (url) {
   return url.replace(/\?.*/, "");
 };
+
+// Sorts an array of objects and returns the newly sorted array.
+// It needs to know the key to order the array by and the order (asc/desc).
+function sortArray(array, orderBy = "timestamp", order = "asc") {
+  // If the object passed is not an array or nothing was passed, just return it.
+  if (
+    array === null ||
+    array === undefined ||
+    typeof array === "undefined" ||
+    array.length === undefined ||
+    typeof array.length !== "number"
+  ) {
+    return array;
+  }
+
+  let comparator = undefined;
+  switch (orderBy) {
+    case "timestamp":
+    default:
+      array.forEach((x) => {
+        if (!x.timestamp || !x.timestamp.seconds) {
+          x["timestamp"] = { seconds: new Date().getTime() / 1000 };
+        }
+      });
+      comparator = (a, b) => -(a.timestamp.seconds - b.timestamp.seconds);
+      break;
+
+    case "product":
+      array.forEach((x) => {
+        if (!x.product) {
+          throw Error('Sorting failed because "product" key is missing.');
+        }
+      });
+      if (order === "asc") {
+        comparator = (a, b) => a.product.localeCompare(b.product);
+      } else {
+        comparator = (a, b) => -a.product.localeCompare(b.product);
+      }
+      break;
+    case "category":
+      array.forEach((x) => {
+        if (!x.category) {
+          throw Error('Sorting failed because "category" key is missing.');
+        }
+      });
+      if (order === "asc") {
+        comparator = (a, b) => a.category.localeCompare(b.category);
+      } else {
+        comparator = (a, b) => -a.category.localeCompare(b.category);
+      }
+      break;
+    case "weight":
+      array.forEach((x) => {
+        if (!x.weight) {
+          throw Error('Sorting failed because "weight" key is missing.');
+        }
+      });
+      if (order === "asc") {
+        comparator = (a, b) => a.weight - b.weight;
+      } else {
+        comparator = (a, b) => -(a.weight - b.weight);
+      }
+      break;
+  }
+  const newArray = Array.from(array);
+  return newArray.sort(comparator);
+}
 
 // Confirms a given string is a valid URL
 const validateURL = function (url) {
@@ -117,7 +192,9 @@ export {
   convertWeight,
   convertStrToNum,
   createRange,
+  removeItemID,
   removeURLTracking,
+  sortArray,
   validateURL,
   weightUnitParser,
 };

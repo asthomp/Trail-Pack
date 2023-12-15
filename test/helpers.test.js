@@ -4,10 +4,12 @@ import {
   convertStrToNum,
   convertWeight,
   createRange,
+  removeItemID,
   removeURLTracking,
+  sortArray,
   validateURL,
   weightUnitParser,
-} from "../utils/dataParser";
+} from "../utils/helpers";
 
 // ASSIGN CATEGORY ICON FUNCTION
 describe("assignCategoryIcon", () => {
@@ -113,6 +115,35 @@ describe("createRange", () => {
   });
 });
 
+// REMOVE ITEMID FUNCTION
+describe("removeItemID", () => {
+  test('removes "itemID" key from the object', () => {
+    const inputObject = { itemID: 123, name: "Example" };
+    const result = removeItemID(inputObject);
+    expect(result).toEqual({ name: "Example" });
+  });
+
+  test('does not modify the object if "itemID" key is not present', () => {
+    const inputObject = { name: "Example" };
+    const result = removeItemID(inputObject);
+    expect(result).toEqual({ name: "Example" });
+  });
+
+  test("handles an empty object", () => {
+    const inputObject = {};
+    const result = removeItemID(inputObject);
+    expect(result).toEqual({});
+  });
+
+  // Test case 4: Should handle an object with other keys
+  it("handles an object with other keys", () => {
+    const inputObject = { itemID: 456, name: "Example", age: 25 };
+    const result = removeItemID(inputObject);
+    expect(result).toEqual({ name: "Example", age: 25 });
+  });
+});
+
+//REMOVE URL TRACKING
 describe("removeURLTracking", () => {
   test("Removes tracking parameters from a URL with query parameters", () => {
     const inputURL =
@@ -137,6 +168,109 @@ describe("removeURLTracking", () => {
     const inputURL = "/path/to/resource?query=value";
     const expectedURL = "/path/to/resource";
     expect(removeURLTracking(inputURL)).toBe(expectedURL);
+  });
+});
+
+// SORT ARRAY FUNCTION
+describe("sortArray", () => {
+  test("sorts array by timestamp in descending order by default", () => {
+    const inputArray = [
+      { timestamp: { seconds: 3 } },
+      { timestamp: { seconds: 1 } },
+      { timestamp: { seconds: 2 } },
+    ];
+    const result = sortArray(inputArray, "timestamp");
+    expect(result).toEqual([
+      { timestamp: { seconds: 3 } },
+      { timestamp: { seconds: 2 } },
+      { timestamp: { seconds: 1 } },
+    ]);
+  });
+
+  test("sorts array by product in ascending order", () => {
+    const inputArray = [
+      { product: "Banana" },
+      { product: "Apple" },
+      { product: "Orange" },
+    ];
+    const result = sortArray(inputArray, "product", "asc");
+    expect(result).toEqual([
+      { product: "Apple" },
+      { product: "Banana" },
+      { product: "Orange" },
+    ]);
+  });
+
+  test("sorts array by category in descending order", () => {
+    const inputArray = [
+      { category: "Fruit" },
+      { category: "Vegetable" },
+      { category: "Dairy" },
+    ];
+    const result = sortArray(inputArray, "category", "desc");
+    expect(result).toEqual([
+      { category: "Vegetable" },
+      { category: "Fruit" },
+      { category: "Dairy" },
+    ]);
+  });
+
+  test("sorts array by weight in ascending order", () => {
+    const inputArray = [{ weight: 30 }, { weight: 20 }, { weight: 10 }];
+    const result = sortArray(inputArray, "weight", "asc");
+    expect(result).toEqual([{ weight: 10 }, { weight: 20 }, { weight: 30 }]);
+  });
+
+  test("sets a default time if no keys are provided", () => {
+    const inputArray = [
+      { product: "Banana" },
+      { product: "Apple", timestamp: { seconds: 1 } },
+      { product: "Orange", timestamp: { seconds: 2 } },
+    ];
+    expect(sortArray(inputArray)[0].timestamp.seconds).toBeCloseTo(
+      new Date().getTime() / 1000,
+      0,
+    );
+  });
+
+  test('sets a default time if the "timestamp" is  selected', () => {
+    const inputArray = [
+      { product: "Banana" },
+      { product: "Apple", timestamp: { seconds: 1 } },
+      { product: "Orange", timestamp: { seconds: 2 } },
+    ];
+    expect(
+      sortArray(inputArray, "timestamp", "asc")[0].timestamp.seconds,
+    ).toBeCloseTo(new Date().getTime() / 1000, 0);
+  });
+
+  test('throws an error if "product" key is missing', () => {
+    const inputArray = [
+      { name: "Banana" },
+      { name: "Apple" },
+      { name: "Orange" },
+    ];
+    expect(() => sortArray(inputArray, "product", "asc")).toThrowError(
+      'Sorting failed because "product" key is missing.',
+    );
+  });
+
+  test('throws an error if "category" key is missing', () => {
+    const inputArray = [
+      { type: "Fruit" },
+      { type: "Vegetable" },
+      { type: "Dairy" },
+    ];
+    expect(() => sortArray(inputArray, "category", "desc")).toThrowError(
+      'Sorting failed because "category" key is missing.',
+    );
+  });
+
+  test('throws an error if "weight" key is missing', () => {
+    const inputArray = [{ value: 30 }, { value: 20 }, { value: 10 }];
+    expect(() => sortArray(inputArray, "weight", "asc")).toThrowError(
+      'Sorting failed because "weight" key is missing.',
+    );
   });
 });
 

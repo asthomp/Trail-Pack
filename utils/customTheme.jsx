@@ -1,4 +1,36 @@
-export const TPTheme = {
+// Builds a theme object that has keys for both Expo and React-Native Paper theming.
+// They have a similar structure but some keys differ.
+const convertTheme = function (paperTheme) {
+  if (
+    !paperTheme ||
+    !paperTheme.colors ||
+    !paperTheme.colors.primary ||
+    !paperTheme.colors.background ||
+    !paperTheme.colors.elevation.level2 ||
+    !paperTheme.colors.onSurface ||
+    !paperTheme.colors.outline ||
+    !paperTheme.colors.error
+  ) {
+    throw Error(
+      "Attempted to access data in a Paper-Theme object with missing keys",
+    );
+  }
+  return {
+    ...paperTheme,
+    colors: {
+      ...paperTheme.colors,
+      primary: paperTheme.colors.primary,
+      background: paperTheme.colors.background,
+      card: paperTheme.colors.elevation.level2,
+      text: paperTheme.colors.onSurface,
+      border: paperTheme.colors.outline,
+      notification: paperTheme.colors.error,
+    },
+  };
+};
+
+// This is the custom theme for the entire application.
+const customTheme = {
   light: {
     dark: false,
     colors: {
@@ -90,3 +122,5 @@ export const TPTheme = {
     },
   },
 };
+
+export { convertTheme, customTheme };

@@ -12,7 +12,7 @@ import {
   convertWeight,
   removeURLTracking,
   validateURL,
-} from "../utils/dataParser";
+} from "../utils/helpers";
 import Loading from "../views/Loading";
 import Form from "../views/formInputs/Form";
 

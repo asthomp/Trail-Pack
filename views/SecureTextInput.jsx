@@ -1,11 +1,11 @@
-import { View, StyleSheet, Text, useColorScheme } from "react-native";
+import { View, Text, useColorScheme } from "react-native";
 import { TextInput as Input } from "react-native-paper";
 
-import { TPTheme } from "../utils/theme";
+import { customTheme } from "../utils/customTheme";
 
 export default function SecureTextInput({ errorText, ...props }) {
   const scheme = useColorScheme();
-  const theme = scheme === "light" ? TPTheme.light : TPTheme.dark;
+  const theme = scheme === "light" ? customTheme.light : customTheme.dark;
 
   return (
     <View

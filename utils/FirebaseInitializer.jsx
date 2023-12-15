@@ -5,8 +5,8 @@ import {
   getReactNativePersistence,
   getAuth,
 } from "firebase/auth";
-import React, { useEffect } from "react";
-import { Platform, View } from "react-native";
+import { useEffect } from "react";
+import { Platform } from "react-native";
 
 // Firebase needs an API Key to identify the application. Since it's a frontend library and does not use a backend
 // (that we control), the API Key must be available in the client code. Otherwise, there's no way to access Firebase.
@@ -31,7 +31,11 @@ export default function FirebaseInitializer() {
       try {
         initializeAuth(app);
       } catch {
-        getAuth(app);
+        try {
+          getAuth(app);
+        } catch {
+          throw Error("Unable to initialize Firebase (Web)");
+        }
       }
     } else {
       try {
@@ -39,10 +43,14 @@ export default function FirebaseInitializer() {
           persistence: getReactNativePersistence(ReactNativeAsyncStorage),
         });
       } catch {
-        getAuth(app);
+        try {
+          getAuth(app);
+        } catch {
+          throw Error("Unable to initialize Firebase (Native)");
+        }
       }
     }
   }, []);
 
-  return <View />;
+  return null;
 }

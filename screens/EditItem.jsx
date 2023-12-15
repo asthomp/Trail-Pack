@@ -10,7 +10,7 @@ import {
   convertWeight,
   removeURLTracking,
   validateURL,
-} from "../utils/dataParser";
+} from "../utils/helpers";
 import Loading from "../views/Loading";
 import Form from "../views/formInputs/Form";
 
@@ -68,7 +68,7 @@ export default function EditItem({ itemID }) {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     setLoading(true);
-    const originItem = getItem(itemID, true);
+    const originItem = getItem(itemID);
 
     setItem({
       ...item,

@@ -17,9 +17,13 @@ export default function Locker() {
   const [orderBy, setOrderBy] = useState("timestamp");
   const [order, setOrder] = useState("asc");
 
-  const { dataCache, sortItems } = useDataContext();
+  const { items, sortItems } = useDataContext();
+
+  // When the user's preferred ordering methodology changes, resort the displayed items.
   useEffect(() => {
-    sortItems(orderBy, order);
+    if (items !== null) {
+      sortItems(items, orderBy, order);
+    }
   }, [order, orderBy]);
 
   const getIcon = function (type) {
@@ -34,7 +38,7 @@ export default function Locker() {
 
   return (
     <View style={style.lockerContainer}>
-      {!dataCache.items ? (
+      {!items ? (
         <Loading />
       ) : (
         <>
@@ -110,8 +114,8 @@ export default function Locker() {
                 alignItems: "stretch",
               }}
             >
-              {dataCache.items.length > 0 ? (
-                dataCache.items.map((x) => {
+              {items.length > 0 ? (
+                items.map((x) => {
                   return (
                     <View key={"ID#" + x.itemID + "-section''"}>
                       <List.Item

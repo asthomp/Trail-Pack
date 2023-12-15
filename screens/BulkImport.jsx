@@ -17,7 +17,7 @@ import {
   assignCategoryIcon,
   convertWeight,
   weightUnitParser,
-} from "../utils/dataParser";
+} from "../utils/helpers";
 import Loading from "../views/Loading";
 export default function BulkImport({ toggle }) {
   const [bulk, setBulk] = useState({ url: "", error: null });
