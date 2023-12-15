@@ -52,9 +52,6 @@ export default function DataContextProvider({ children }) {
     });
   };
 
-  const sortItems = function (orderBy = "timestamp", order = "asc") {
-    setItems(sortArray(items, orderBy, order));
-  };
   // CREATE ITEM -> Post a new item to the database; returns the ID of the newly-created item.
   // Note: This triggers the listener to update the DataProvider's data. It receives unchanged data
   // from the local cache aggregated with updated data queried from Firestore.
@@ -75,6 +72,11 @@ export default function DataContextProvider({ children }) {
   // READ ITEMS -> Retrieves the authenticated user's items; the useEffect listener handles updating this data.
   const getItems = async () => {
     return items;
+  };
+
+  // SORT ITEMS -> Sorts the item data.
+  const sortItems = function (orderBy = "timestamp", order = "asc") {
+    setItems(sortArray(items, orderBy, order));
   };
 
   // READ ITEM -> Retrieves a single item owned by an authenticated user.
