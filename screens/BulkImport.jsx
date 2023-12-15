@@ -14,10 +14,10 @@ import {
 
 import { useDataContext } from "../utils/DataProvider";
 import {
-  categoryIconParser,
+  assignCategoryIcon,
   convertWeight,
   weightUnitParser,
-} from "../utils/dataParser";
+} from "../utils/helpers";
 import Loading from "../views/Loading";
 export default function BulkImport({ toggle }) {
   const [bulk, setBulk] = useState({ url: "", error: null });
@@ -40,7 +40,7 @@ export default function BulkImport({ toggle }) {
               product: data[i]["Item Name"],
               brand: null,
               category: data[i]["Category"],
-              categoryIcon: categoryIconParser(data[i]["Category"]),
+              categoryIcon: assignCategoryIcon(data[i]["Category"]),
               displayWeight: data[i]["weight"],
               displayWeightUnit: weightUnitParser(data[i]["unit"]),
               weight: convertWeight(

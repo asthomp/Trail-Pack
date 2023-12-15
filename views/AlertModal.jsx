@@ -35,12 +35,20 @@ export default function AlertModal({
             <Button
               onPress={async () => {
                 setLoading(true);
-                if (await callback()) {
-                  setLoading(false);
-                  setVisible(false);
-                  if (route) {
-                    router.push(route);
+                try {
+                  const result = await callback();
+                  if (result) {
+                    setLoading(false);
+                    setVisible(false);
+                    if (route) {
+                      router.push(route);
+                    }
                   }
+                } catch (error) {
+                  console.error("Callback execution error:", error);
+                  throw new Error(
+                    "Callback to AlertModal must be a valid asynchronous function",
+                  );
                 }
               }}
             >

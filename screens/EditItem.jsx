@@ -6,11 +6,11 @@ import { Button, Card, IconButton, HelperText } from "react-native-paper";
 
 import { useDataContext } from "../utils/DataProvider";
 import {
-  convertStringToNum,
+  convertStrToNum,
   convertWeight,
   removeURLTracking,
   validateURL,
-} from "../utils/dataParser";
+} from "../utils/helpers";
 import Loading from "../views/Loading";
 import Form from "../views/formInputs/Form";
 
@@ -68,7 +68,7 @@ export default function EditItem({ itemID }) {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     setLoading(true);
-    const originItem = getItem(itemID, true);
+    const originItem = getItem(itemID);
 
     setItem({
       ...item,
@@ -231,14 +231,14 @@ export default function EditItem({ itemID }) {
                         brand: item.brand.value,
                         category: item.category.value,
                         categoryIcon: item.category.icon,
-                        displayWeight: convertStringToNum(item.weight.value),
+                        displayWeight: convertStrToNum(item.weight.value),
                         displayWeightUnit: item.weight.unit,
                         weight: convertWeight(
                           item.weight.value,
                           item.weight.unit,
                         ),
                         weightUnit: "oz",
-                        price: convertStringToNum(item.price.value).toFixed(2),
+                        price: convertStrToNum(item.price.value).toFixed(2),
                         priceUnit: "$",
                         link: removeURLTracking(item.url.value),
                         description: item.description.value,
@@ -246,7 +246,7 @@ export default function EditItem({ itemID }) {
                         nutrition: null,
                         wearable: item.wearable,
                         userID: getAuth().currentUser.uid,
-                        quantity: convertStringToNum(item.quantity.value),
+                        quantity: convertStrToNum(item.quantity.value),
                       };
                       const result = await updateItem(itemID, updatedItem);
 

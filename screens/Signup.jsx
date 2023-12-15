@@ -2,10 +2,9 @@ import { Link, router } from "expo-router";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
 import { View, StyleSheet } from "react-native";
-import { Button, Card, Text } from "react-native-paper";
+import { Button, Card } from "react-native-paper";
 import { MD2DarkTheme as theme } from "react-native-paper/src";
 
-import LinkButton from "../views/LinkButton";
 import SecureTextInput from "../views/SecureTextInput";
 export default function Signup() {
   const [email, setEmail] = useState({ value: "", error: "" });
@@ -46,12 +45,14 @@ export default function Signup() {
                 .then((userCredential) => {
                   // Signed up
                   const user = userCredential.user;
+                  console.log(user);
                   router.push("/");
                 })
                 .catch((error) => {
                   const errorCode = error.code;
                   const errorMessage = error.message;
                   console.log(errorMessage);
+                  console.log(errorCode);
                 });
             }}
           >

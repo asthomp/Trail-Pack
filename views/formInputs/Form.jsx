@@ -6,7 +6,7 @@ import DropDownMenuInput from "./DropDownMenuInput";
 import TextFieldInput from "./TextFieldInput";
 import ToggleInput from "./ToggleInput";
 import WeightRowInput from "./WeightRowInput";
-import { createRange } from "../../utils/dataParser";
+import { createRange } from "../../utils/helpers";
 
 export default function Form({ item, updateItemState }) {
   return (
