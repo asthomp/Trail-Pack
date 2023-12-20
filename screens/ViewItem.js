@@ -1,11 +1,10 @@
-// Displays a single item.
+// Displays a single item; provides the option to edit or delete the item.
 import * as Linking from "expo-linking";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Card, Divider, IconButton, List, Text } from "react-native-paper";
 
-import { useDataContext } from "../utils/DataProvider";
 import AlertModal from "../views/AlertModal";
 import CategoryIcon from "../views/CategoryIcon";
 import CategoryListItem from "../views/viewItemElements/CategoryListItem";
@@ -16,11 +15,17 @@ import ViewNutritionFacts from "../views/viewItemElements/ViewNutritionFacts";
 import WearableListItem from "../views/viewItemElements/WearableListItem";
 import WeightListItem from "../views/viewItemElements/WeightListItem";
 
-export default function ViewItem({ itemID }) {
-  const { getItem, deleteItem } = useDataContext();
-  const [deleteWindow, setDeleteWindow] = useState(false);
-  const [debugWindow, setDebugWindow] = useState(false);
-  const item = getItem(itemID, true);
+export default function ViewItem({
+  debugModal,
+  deleteModal,
+  isDeleteInProgress,
+  item,
+  onDeleteItem,
+  onDismissDebugModal,
+  onDismissDeleteModal,
+  onShowDebugModal,
+  onShowDeleteModal,
+}) {
   if (item === undefined || item === null) {
     return null;
   }
@@ -48,6 +53,7 @@ export default function ViewItem({ itemID }) {
           )}
           right={() => (
             <IconButton
+              accessibilityLabel="Edit Item"
               mode="contained-tonal"
               size={20}
               icon="pencil"
@@ -55,7 +61,7 @@ export default function ViewItem({ itemID }) {
                 router.push({
                   pathname: "locker/edit",
                   params: {
-                    itemID,
+                    itemID: item.itemID,
                   },
                 });
               }}
@@ -97,22 +103,20 @@ export default function ViewItem({ itemID }) {
 
             <View style={style.actionBarSubset}>
               <IconButton
+                accessibilityLabel="Debug Item"
                 icon="bug"
                 mode="contained-tonal"
                 iconColor="rgb(0, 104, 116)"
                 size={20}
-                onPress={() => {
-                  setDebugWindow(true);
-                }}
+                onPress={onShowDebugModal}
               />
               <IconButton
+                accessibilityLabel="Delete Item"
                 mode="contained-tonal"
                 iconColor="rgb(186, 26, 26)"
                 size={20}
                 icon="delete"
-                onPress={() => {
-                  setDeleteWindow(true);
-                }}
+                onPress={onShowDeleteModal}
               />
             </View>
           </View>
@@ -120,22 +124,20 @@ export default function ViewItem({ itemID }) {
       </Card>
       {item.nutritionFacts && <ViewNutritionFacts item={item} />}
       <AlertModal
-        visible={deleteWindow}
-        setVisible={setDeleteWindow}
+        callback={onDeleteItem}
+        callbackButtonTitle="Delete"
+        loading={isDeleteInProgress}
         message="Are you sure you want to delete this item? It'll be gone
                 forever."
+        onCancel={onDismissDeleteModal}
         title="Delete Item"
-        route="/locker"
-        callback={async () => {
-          return await deleteItem(item.itemID);
-        }}
-        callbackButtonTitle="Delete"
+        visible={deleteModal}
       />
       <AlertModal
-        visible={debugWindow}
-        setVisible={setDebugWindow}
         message={JSON.stringify(item, null, 2)}
+        onCancel={onDismissDebugModal}
         title="Item Debug Window"
+        visible={debugModal}
       />
     </ScrollView>
   );

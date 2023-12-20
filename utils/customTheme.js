@@ -123,4 +123,4 @@ const customTheme = {
   },
 };
 
-export { convertTheme, customTheme };
+export { customTheme, convertTheme };

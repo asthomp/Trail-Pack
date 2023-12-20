@@ -23,7 +23,13 @@ export const DataContext = createContext(null);
 
 export default function DataContextProvider({ children }) {
   const [items, setItems] = useState(null);
-
+  const [packs, setPacks] = useState({
+    name: "My Cool Pack",
+    kit: false,
+    userID: "o7edQGr2o3PHdXQza0ksrsBygnB2",
+    trip: "Shipwreck Coast",
+    items: ["0vejvJnTrqDj1UU9Zs6O", "Xz71u1QwtC0k0cQXMf4w"],
+  });
   const db = getFirestore();
 
   // Subscribe to real-time updates when the component mounts; unsubscribe when it unmounts.
@@ -34,7 +40,7 @@ export default function DataContextProvider({ children }) {
     };
   }, []);
 
-  // Creates an onSnapshot listener to refresh data when it updates.
+  // Creates an onSnapshot listeners to refresh data when there are updates.
   const _subscribeToItems = () => {
     const q = query(
       collection(db, "items"),
@@ -124,6 +130,7 @@ export default function DataContextProvider({ children }) {
         getItem,
         updateItem,
         deleteItem,
+        packs,
       }}
     >
       {children}
