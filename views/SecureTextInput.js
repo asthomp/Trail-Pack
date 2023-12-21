@@ -1,4 +1,4 @@
-import { View, Text, useColorScheme } from "react-native";
+import { Text, useColorScheme } from "react-native";
 import { TextInput as Input } from "react-native-paper";
 
 import { customTheme } from "../utils/customTheme";
@@ -8,12 +8,7 @@ export default function SecureTextInput({ errorText, ...props }) {
   const theme = scheme === "light" ? customTheme.light : customTheme.dark;
 
   return (
-    <View
-      style={{
-        width: "100%",
-        marginVertical: 12,
-      }}
-    >
+    <>
       <Input
         style={{
           backgroundColor: theme.colors.surface,
@@ -26,8 +21,8 @@ export default function SecureTextInput({ errorText, ...props }) {
       {errorText ? (
         <Text
           style={{
-            fontSize: 14,
             color: theme.colors.error,
+            fontSize: 14,
             paddingHorizontal: 4,
             paddingTop: 4,
           }}
@@ -35,6 +30,6 @@ export default function SecureTextInput({ errorText, ...props }) {
           {errorText}
         </Text>
       ) : null}
-    </View>
+    </>
   );
 }

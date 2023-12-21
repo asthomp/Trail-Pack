@@ -22,7 +22,7 @@ export default function Locker() {
   // When the user's preferred ordering methodology changes, resort the displayed items.
   useEffect(() => {
     if (items !== null) {
-      sortItems(items, orderBy, order);
+      sortItems(orderBy, order);
     }
   }, [order, orderBy]);
 

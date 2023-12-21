@@ -18,8 +18,8 @@ export default function TabsLayout() {
       <Tabs
         safeAreaInsets={Platform.select({
           android: { bottom: x.bottom + 10 },
-          web: { bottom: x.bottom + 10 },
           default: {},
+          web: { bottom: x.bottom + 10 },
         })}
         screenOptions={{
           header: (props) => {
@@ -31,16 +31,15 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="home"
           options={{
-            title: "Home",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="ios-home" size={size} color={color} />
             ),
+            title: "Home",
           }}
         />
         <Tabs.Screen
           name="pack/index"
           options={{
-            title: "My Pack",
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons
                 name="bag-personal-outline"
@@ -48,15 +47,16 @@ export default function TabsLayout() {
                 color={color}
               />
             ),
+            title: "My Pack",
           }}
         />
         <Tabs.Screen
           name="locker/index"
           options={{
-            title: "My Gear",
             tabBarIcon: ({ color, size }) => (
               <Entypo name="compass" size={size} color={color} />
             ),
+            title: "My Gear",
           }}
         />
         {/* Hidden Routes */}
