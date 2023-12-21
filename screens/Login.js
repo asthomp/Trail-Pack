@@ -1,83 +1,65 @@
-import { Link, router } from "expo-router";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { useState } from "react";
+import { Link } from "expo-router";
 import { View, StyleSheet } from "react-native";
-import { Button, Card } from "react-native-paper";
-import { MD2DarkTheme as theme } from "react-native-paper/src";
+import { Button, Card, HelperText, TextInput } from "react-native-paper";
 
-import SecureTextInput from "../views/SecureTextInput";
-
-export default function Login() {
-  const [email, setEmail] = useState({ value: "", error: "" });
-  const [password, setPassword] = useState({ value: "", error: "" });
-
+export default function Login({
+  credentials,
+  onChangeEmail,
+  onChangePassword,
+  onSubmitCredentials,
+}) {
   return (
     <View style={style.loginContainer}>
       <Card style={style.loginCard}>
         <Card.Title title="Login" />
         <Card.Content>
-          <SecureTextInput
-            label="Email"
-            placeholder="email@youremail.com"
-            returnKeyType="next"
-            value={email.value}
-            onChangeText={(text) => setEmail({ value: text, error: "" })}
-            error={!!email.error}
-            errorText={email.error}
-            autoCapitalize="none"
-            autoCompleteType="email"
-            textContentType="emailAddress"
-            keyboardType="email-address"
-          />
-          <SecureTextInput
-            label="Password"
-            returnKeyType="done"
-            value={password.value}
-            onChangeText={(text) => setPassword({ value: text, error: "" })}
-            error={!!password.error}
-            errorText={password.error}
-            secureTextEntry
-          />
+          <View style={style.textElementColumn}>
+            <View style={style.singleTextElement}>
+              <TextInput
+                autoCapitalize="none"
+                autoComplete="email"
+                clearButtonMode="while-editing"
+                keyboardType="email-address"
+                label="Email"
+                maxLength={50}
+                mode="outlined"
+                onChangeText={onChangeEmail}
+                placeholder="email@email.com"
+                value={credentials.email.value}
+              />
+              <HelperText
+                type="error"
+                padding="none"
+                visible={!!credentials.email.error}
+              >
+                {credentials.email.error}
+              </HelperText>
+            </View>
+            <View style={style.singleTextElement}>
+              <TextInput
+                autoCapitalize="none"
+                autoComplete="current-password"
+                clearButtonMode="while-editing"
+                label="Password"
+                maxLength={50}
+                mode="outlined"
+                onChangeText={onChangePassword}
+                secureTextEntry
+                value={credentials.password.value}
+              />
+              <HelperText
+                type="error"
+                padding="none"
+                visible={!!credentials.password.error}
+              >
+                {credentials.password.error}
+              </HelperText>
+            </View>
+          </View>
           <Button
             mode="contained"
-            onPress={() => {
-              const auth = getAuth();
-              signInWithEmailAndPassword(auth, email.value, password.value)
-                .then((userCredential) => {
-                  // Signed in
-                  if (userCredential) {
-                    router.push("/home");
-                  } else {
-                    setPassword({
-                      password: "",
-                      error: "Something went wrong, try again.",
-                    });
-                  }
-                })
-                .catch((error) => {
-                  if (error.code === "auth/invalid-email") {
-                    setEmail({
-                      value: email.value,
-                      error: "Please enter a valid email",
-                    });
-                  } else if (error.code === "auth/invalid-login-credentials") {
-                    setPassword({
-                      value: "",
-                      error: "Invalid username and/or password",
-                    });
-                  } else if (error.code === "auth/missing-password") {
-                    setPassword({
-                      value: "",
-                      error: "Please enter a valid password",
-                    });
-                  } else {
-                    setPassword({
-                      value: "",
-                      error: "Oops! Something went wrong!",
-                    });
-                  }
-                });
-            }}
+            onPress={onSubmitCredentials}
+            style={style.buttonPadding}
           >
             Login
           </Button>
@@ -91,23 +73,30 @@ export default function Login() {
 }
 
 const style = StyleSheet.create({
-  loginContainer: {
-    flexGrow: 1,
-    alignItems: "center",
-    justifyContent: "center",
+  buttonPadding: {
+    marginBottom: 10,
+    marginLeft: 5,
+    marginRight: 5,
+    marginTop: 10,
   },
   loginCard: {
-    width: "80%",
+    flex: 1,
+    flexDirection: "column",
+    margin: 20,
   },
-  button: {
-    marginTop: 24,
-  },
-  row: {
+  loginContainer: {
+    alignItems: "center",
     flexDirection: "row",
-    marginTop: 4,
+    flexGrow: 1,
+    justifyContent: "center",
   },
-  link: {
-    fontWeight: "bold",
-    color: theme.colors.primary,
+  singleTextElement: { marginBottom: 5 },
+  textElementColumn: {
+    flexDirection: "column",
+    flexGrow: 1,
+    padding: 5,
+  },
+  textInputPadding: {
+    marginBottom: 10,
   },
 });

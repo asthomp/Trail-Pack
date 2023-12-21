@@ -8,10 +8,10 @@ import { DataContext } from "../utils/DataProvider";
 jest.mock("expo-router");
 
 const mockItem = {
-  itemID: 1,
   brand: "MockBrand",
-  product: "MockProduct",
   categoryIcon: "mockCategoryIcon",
+  itemID: 1,
+  product: "MockProduct",
 };
 
 const getItem = jest.fn();
@@ -21,8 +21,8 @@ function MockDataProvider({ children }) {
   return (
     <DataContext.Provider
       value={{
-        getItem,
         deleteItem,
+        getItem,
       }}
     >
       {children}

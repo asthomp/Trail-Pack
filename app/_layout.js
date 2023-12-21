@@ -19,16 +19,18 @@ export default function MainLayout() {
     scheme === "light"
       ? convertTheme(customTheme.light)
       : convertTheme(customTheme.dark);
+
   return (
-    <ThemeProvider value={theme}>
-      <PaperProvider theme={theme}>
-        <FirebaseInitializer />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}
-        />
-      </PaperProvider>
-    </ThemeProvider>
+    <FirebaseInitializer>
+      <ThemeProvider value={theme}>
+        <PaperProvider theme={theme}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+            }}
+          />
+        </PaperProvider>
+      </ThemeProvider>
+    </FirebaseInitializer>
   );
 }

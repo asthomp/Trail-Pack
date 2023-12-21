@@ -25,16 +25,23 @@ export default function EditItem({ itemID }) {
     category: {
       error: undefined,
       focused: false,
-      value: "Packing & Storage",
       icon: "packing",
+      value: "Packing & Storage",
     },
-    formError: undefined,
-    productName: {
+    consumable: false,
+    description: {
       error: undefined,
       focused: false,
       value: "",
     },
+    formError: undefined,
+    nutritionFacts: { error: undefined, value: "" },
     price: {
+      error: undefined,
+      focused: false,
+      value: "",
+    },
+    productName: {
       error: undefined,
       focused: false,
       value: "",
@@ -50,18 +57,11 @@ export default function EditItem({ itemID }) {
       value: "",
     },
     wearable: false,
-    consumable: false,
-    nutritionFacts: { value: "", error: undefined },
-    description: {
-      error: undefined,
-      focused: false,
-      value: "",
-    },
     weight: {
       error: undefined,
       focused: false,
-      value: "1",
       unit: "oz",
+      value: "1",
     },
   };
   const [item, setItem] = useState(baseItem);
@@ -75,8 +75,8 @@ export default function EditItem({ itemID }) {
       brand: { ...item.brand, value: originItem.brand },
       category: {
         ...item.category,
-        value: originItem.category,
         icon: originItem.categoryIcon,
+        value: originItem.category,
       },
       consumable: originItem.consumable,
       description: {
@@ -93,8 +93,8 @@ export default function EditItem({ itemID }) {
       wearable: originItem.wearable,
       weight: {
         ...item.weight,
-        value: originItem.displayWeight.toString(),
         unit: originItem.displayWeightUnit,
+        value: originItem.displayWeight.toString(),
       },
     });
     setLoading(false);
@@ -196,10 +196,10 @@ export default function EditItem({ itemID }) {
                 size={20}
                 onPress={() => {
                   router.push({
-                    pathname: "locker/[itemID]",
                     params: {
                       itemID,
                     },
+                    pathname: "locker/[itemID]",
                   });
                 }}
               />
@@ -211,52 +211,52 @@ export default function EditItem({ itemID }) {
           <Card.Actions>
             <View
               style={{
+                alignItems: "flex-end",
                 flexDirection: "column",
                 justifyContent: "flex-end",
-                alignItems: "flex-end",
               }}
             >
               {loading ? (
                 <Loading />
               ) : (
                 <Button
-                  style={{ width: 100, marginRight: 10 }}
+                  style={{ marginRight: 10, width: 100 }}
                   icon="content-save"
                   mode="contained"
                   onPress={async () => {
                     if (!item.formError) {
                       setLoading(true);
                       const updatedItem = {
-                        product: item.productName.value,
                         brand: item.brand.value,
                         category: item.category.value,
                         categoryIcon: item.category.icon,
+                        consumable: item.consumable,
+                        description: item.description.value,
                         displayWeight: convertStrToNum(item.weight.value),
                         displayWeightUnit: item.weight.unit,
+                        link: removeURLTracking(item.url.value),
+                        nutrition: null,
+                        price: convertStrToNum(item.price.value).toFixed(2),
+                        priceUnit: "$",
+                        product: item.productName.value,
+                        quantity: convertStrToNum(item.quantity.value),
+                        userID: getAuth().currentUser.uid,
+                        wearable: item.wearable,
                         weight: convertWeight(
                           item.weight.value,
                           item.weight.unit,
                         ),
                         weightUnit: "oz",
-                        price: convertStrToNum(item.price.value).toFixed(2),
-                        priceUnit: "$",
-                        link: removeURLTracking(item.url.value),
-                        description: item.description.value,
-                        consumable: item.consumable,
-                        nutrition: null,
-                        wearable: item.wearable,
-                        userID: getAuth().currentUser.uid,
-                        quantity: convertStrToNum(item.quantity.value),
                       };
                       const result = await updateItem(itemID, updatedItem);
 
                       if (result) {
                         setLoading(false);
                         router.push({
-                          pathname: "locker/[itemID]",
                           params: {
                             itemID,
                           },
+                          pathname: "locker/[itemID]",
                         });
                       } else {
                         updateItemState({
@@ -283,19 +283,19 @@ export default function EditItem({ itemID }) {
 }
 
 const style = StyleSheet.create({
+  divider: {
+    marginBottom: 10,
+  },
   editItemCard: {
     flexGrow: 1,
     margin: 10,
   },
   formMultipleRow: {
+    alignItems: "center",
     flexDirection: "row",
     flexGrow: 1,
     justifyContent: "space-evenly",
-    alignItems: "center",
-    paddingTop: 5,
     paddingBottom: 5,
-  },
-  divider: {
-    marginBottom: 10,
+    paddingTop: 5,
   },
 });

@@ -5,14 +5,14 @@ describe("convertTheme function", () => {
   test("Returns a converted theme when provided with a valid paperTheme object", () => {
     const validPaperTheme = {
       colors: {
-        primary: "#ff0000",
         background: "#ffffff",
         elevation: {
           level2: "#dddddd",
         },
+        error: "#ff0000",
         onSurface: "#333333",
         outline: "#999999",
-        error: "#ff0000",
+        primary: "#ff0000",
       },
     };
 
@@ -22,10 +22,10 @@ describe("convertTheme function", () => {
       ...validPaperTheme,
       colors: {
         ...validPaperTheme.colors,
-        card: validPaperTheme.colors.elevation.level2,
-        text: validPaperTheme.colors.onSurface,
         border: validPaperTheme.colors.outline,
+        card: validPaperTheme.colors.elevation.level2,
         notification: validPaperTheme.colors.error,
+        text: validPaperTheme.colors.onSurface,
       },
     });
   });
