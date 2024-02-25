@@ -59,10 +59,10 @@ export default function ViewItem({
               icon="pencil"
               onPress={() => {
                 router.push({
-                  pathname: "locker/edit",
                   params: {
                     itemID: item.itemID,
                   },
+                  pathname: "locker/edit",
                 });
               }}
             />
@@ -147,13 +147,13 @@ const style = StyleSheet.create({
   actionBar: {
     display: "flex",
     flexDirection: "row",
-    justifyContent: "space-between",
     flexGrow: 1,
+    justifyContent: "space-between",
   },
   actionBarSubset: {
     display: "flex",
     flexDirection: "row",
-    justifyContent: "flex-end",
     flexGrow: 1,
+    justifyContent: "flex-end",
   },
 });

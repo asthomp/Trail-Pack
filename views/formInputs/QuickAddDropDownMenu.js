@@ -1,18 +1,17 @@
-// A generic form control representing an icon-free drop-down menu.
+// A more specific form for dynamically rendering a dropdown list of items (itemID + name).
 import React, { useState } from "react";
 import { View } from "react-native";
 import { Divider, HelperText, Menu, TextInput } from "react-native-paper";
 
-export default function DropDownMenuInput({
+export default function QuickAddDropDownMenu({
   title,
-  text,
   menuLeadingIcon = null,
   onTextChange,
-  options,
+  items,
   error,
   style,
+  text = "",
   hideError = false,
-  editable = true,
 }) {
   const [menu, setMenu] = useState(false);
   return (
@@ -24,7 +23,7 @@ export default function DropDownMenuInput({
         anchor={
           <TextInput
             mode="outlined"
-            editable={editable}
+            editable={false}
             label={title}
             value={text}
             onChangeText={(x) => {
@@ -39,21 +38,22 @@ export default function DropDownMenuInput({
           />
         }
       >
-        {options.map((x) => {
-          return (
-            <View key={x + "-menu-item"}>
-              <Menu.Item
-                leadingIcon={menuLeadingIcon}
-                onPress={() => {
-                  onTextChange(x);
-                  setMenu(false);
-                }}
-                title={x}
-              />
-              {x !== options[options.length - 1] && <Divider />}
-            </View>
-          );
-        })}
+        {items &&
+          items.map((x) => {
+            return (
+              <View key={x.itemID + x.value + "-dropdown-menu-item"}>
+                <Menu.Item
+                  leadingIcon={menuLeadingIcon}
+                  onPress={() => {
+                    onTextChange(x);
+                    setMenu(false);
+                  }}
+                  title={x.value}
+                />
+                {x !== x[x.length - 1] && <Divider />}
+              </View>
+            );
+          })}
       </Menu>
       {!hideError && (
         <HelperText type="error" visible={!!error}>

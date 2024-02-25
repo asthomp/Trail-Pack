@@ -4,10 +4,10 @@ import { PaperProvider } from "react-native-paper";
 
 import ViewItem from "../screens/ViewItem";
 const mockItem = {
-  itemID: 1,
   brand: "MockBrand",
-  product: "MockProduct",
   categoryIcon: "mockCategoryIcon",
+  itemID: 1,
+  product: "MockProduct",
 };
 
 describe("ViewItem Component", () => {

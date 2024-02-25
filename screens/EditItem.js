@@ -7,7 +7,7 @@ import { Button, Card, IconButton, HelperText } from "react-native-paper";
 import { useDataContext } from "../utils/DataProvider";
 import {
   convertStrToNum,
-  convertWeight,
+  convertWeightToOunces,
   removeURLTracking,
   validateURL,
 } from "../utils/helpers";
@@ -242,7 +242,7 @@ export default function EditItem({ itemID }) {
                         quantity: convertStrToNum(item.quantity.value),
                         userID: getAuth().currentUser.uid,
                         wearable: item.wearable,
-                        weight: convertWeight(
+                        weight: convertWeightToOunces(
                           item.weight.value,
                           item.weight.unit,
                         ),
