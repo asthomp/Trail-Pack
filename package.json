@@ -10,7 +10,7 @@
     "build": "expo export -p web",
     "deploy": "npm run build && firebase deploy --only hosting",
     "test": "jest",
-    "lint": "eslint '**/*.jsx'"
+    "lint": "eslint '**/*.js'"
   },
   "dependencies": {
     "@expo/metro-config": "^0.10.7",
