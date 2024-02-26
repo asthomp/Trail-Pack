@@ -22,9 +22,9 @@ export default function LinkButton({ text, link, icon = null }) {
 
 const style = StyleSheet.create({
   fabContainer: {
+    alignItems: "center",
     display: "flex",
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "center",
   },
 });

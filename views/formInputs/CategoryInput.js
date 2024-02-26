@@ -88,7 +88,7 @@ export default function CategoryInput({
                 <View key={"Category Selection Menu =" + x.title}>
                   <Menu.Item
                     onPress={() => {
-                      onCategoryChange({ value: x.title, icon: x.icon });
+                      onCategoryChange({ icon: x.icon, value: x.title });
                       setMenuVisible(false);
                     }}
                     title={x.title}
@@ -108,9 +108,9 @@ export default function CategoryInput({
 
 const defaultStyle = StyleSheet.create({
   formCategoryRow: {
+    alignItems: "stretch",
     flexDirection: "row",
     flexGrow: 1,
-    alignItems: "stretch",
     justifyContent: "right",
   },
 });
