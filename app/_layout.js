@@ -1,10 +1,11 @@
 import { ThemeProvider } from "@react-navigation/native";
-import { Stack } from "expo-router";
+import { Stack, usePathname } from "expo-router";
 import { useColorScheme } from "react-native";
 import { PaperProvider } from "react-native-paper";
 
 import FirebaseInitializer from "../utils/FirebaseInitializer";
 import { convertTheme, customTheme } from "../utils/customTheme";
+import NavBar from "../views/NavBar";
 
 //Pushes the Landing page onto the navigation stack.
 export const unstable_settings = {
@@ -19,14 +20,17 @@ export default function MainLayout() {
     scheme === "light"
       ? convertTheme(customTheme.light)
       : convertTheme(customTheme.dark);
-
+  const path = usePathname();
   return (
     <FirebaseInitializer>
       <ThemeProvider value={theme}>
         <PaperProvider theme={theme}>
           <Stack
             screenOptions={{
-              headerShown: false,
+              header: (props) => {
+                return <NavBar props={props} />;
+              },
+              headerShown: path !== "/" && path !== "/signup",
             }}
           />
         </PaperProvider>

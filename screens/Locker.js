@@ -44,10 +44,10 @@ export default function Locker() {
         <>
           <View
             style={{
+              marginBottom: 10,
               marginLeft: 5,
               marginRight: 5,
               marginTop: 10,
-              marginBottom: 10,
             }}
           >
             <SegmentedButtons
@@ -71,19 +71,19 @@ export default function Locker() {
               density="medium"
               buttons={[
                 {
-                  value: "product",
-                  label: "Item",
                   icon: getIcon("product"),
+                  label: "Item",
+                  value: "product",
                 },
                 {
-                  value: "category",
-                  label: "Category",
                   icon: getIcon("category"),
+                  label: "Category",
+                  value: "category",
                 },
-                { value: "weight", label: "Weight", icon: getIcon("weight") },
+                { icon: getIcon("weight"), label: "Weight", value: "weight" },
                 {
-                  value: "timestamp",
                   label: "Recent",
+                  value: "timestamp",
                 },
               ]}
             />
@@ -92,7 +92,7 @@ export default function Locker() {
           <ScrollView>
             <Chip icon="information">
               {orderBy === "timestamp" && (
-                <Text>Displaying the most recently added items</Text>
+                <Text>Displaying recently updated items</Text>
               )}
               {orderBy === "product" && (
                 <Text>Sorted alphabetically by product name</Text>
@@ -108,10 +108,10 @@ export default function Locker() {
             </Chip>
             <List.Section
               style={{
+                alignItems: "stretch",
                 flexDirection: "column",
                 flexGrow: 1,
                 justifyContent: "flex-start",
-                alignItems: "stretch",
               }}
             >
               {items.length > 0 ? (
@@ -121,10 +121,11 @@ export default function Locker() {
                       <List.Item
                         onPress={() =>
                           router.push({
-                            pathname: "locker/[itemID]",
                             params: {
                               itemID: x.itemID,
+                              returnPath: "locker/",
                             },
+                            pathname: "locker/[itemID]",
                           })
                         }
                         title={x.brand ? x.brand + " " + x.product : x.product}
@@ -173,28 +174,28 @@ export default function Locker() {
 }
 
 const style = StyleSheet.create({
+  addFAB: {
+    alignItems: "center",
+    bottom: 0,
+    justifyContent: "center",
+    margin: 40,
+    position: "absolute",
+    right: 0,
+  },
   lockerContainer: {
-    flex: 1,
     alignItems: "stretch",
+    flex: 1,
     justifyContent: "flex-start",
   },
+
   lockerHeader: {
     display: "flex",
     flexDirection: "row",
   },
-
   lockerSortingChip: {
-    marginRight: 10,
-    marginLeft: 10,
     flexGrow: 1,
-  },
-  addFAB: {
-    position: "absolute",
-    margin: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    right: 0,
-    bottom: 0,
+    marginLeft: 10,
+    marginRight: 10,
   },
   rightHelpButton: {
     display: "flex",

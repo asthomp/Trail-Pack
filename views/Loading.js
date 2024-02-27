@@ -12,9 +12,9 @@ export default function Loading({ color }) {
 }
 const style = StyleSheet.create({
   loadingContainer: {
+    alignItems: "center",
     flexDirection: "column",
     flexGrow: 1,
-    alignItems: "center",
     justifyContent: "center",
     margin: 20,
   },

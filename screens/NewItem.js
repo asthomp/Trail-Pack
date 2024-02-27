@@ -1,22 +1,22 @@
-// This screen manages the modes for adding items: bulk entry (via LighterPack) or item-by-item.
+// This screen manages adding a new item to the database.
 
 import { router } from "expo-router";
 import { getAuth } from "firebase/auth";
 import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { Avatar, Button, Card, HelperText } from "react-native-paper";
 
 import { useDataContext } from "../utils/DataProvider";
 import {
   convertStrToNum,
-  convertWeight,
+  convertWeightToOunces,
   removeURLTracking,
   validateURL,
 } from "../utils/helpers";
 import Loading from "../views/Loading";
 import Form from "../views/formInputs/Form";
 
-export default function NewItem({ toggle }) {
+export default function NewItem() {
   const { postItem } = useDataContext();
   const baseItem = {
     brand: {
@@ -27,16 +27,24 @@ export default function NewItem({ toggle }) {
     category: {
       error: undefined,
       focused: false,
-      value: "Packing & Storage",
       icon: "packing",
+      value: "Packing & Storage",
     },
-    formError: undefined,
-    productName: {
+    consumable: false,
+    containers: [],
+    description: {
       error: undefined,
       focused: false,
       value: "",
     },
+    formError: undefined,
+    nutritionFacts: { error: undefined, value: "" },
     price: {
+      error: undefined,
+      focused: false,
+      value: "",
+    },
+    productName: {
       error: undefined,
       focused: false,
       value: "",
@@ -52,18 +60,11 @@ export default function NewItem({ toggle }) {
       value: "",
     },
     wearable: false,
-    consumable: false,
-    nutritionFacts: { value: "", error: undefined },
-    description: {
-      error: undefined,
-      focused: false,
-      value: "",
-    },
     weight: {
       error: undefined,
       focused: false,
-      value: "1",
       unit: "oz",
+      value: "1",
     },
   };
 
@@ -152,89 +153,94 @@ export default function NewItem({ toggle }) {
     setItem(item);
   };
   return (
-    <Card style={style.addItemCard}>
-      <Card.Title
-        title="Add New Item"
-        left={(props) => <Avatar.Icon {...props} icon="folder" />}
-        right={() => (
-          <Button
-            mode="text"
-            onPress={() => {
-              toggle();
-            }}
-            style={{ marginRight: 20 }}
-          >
-            Bulk Import
-          </Button>
-        )}
-      />
-
-      <Card.Content>
-        <Form item={item} updateItemState={updateItemState} />
-      </Card.Content>
-      <Card.Actions>
-        <View
-          style={{
-            flexDirection: "column",
-            justifyContent: "flex-end",
-            alignItems: "flex-end",
-          }}
-        >
-          {loading ? (
-            <Loading />
-          ) : (
+    <ScrollView>
+      <Card style={style.addItemCard}>
+        <Card.Title
+          title="Add New Item"
+          left={(props) => <Avatar.Icon {...props} icon="folder" />}
+          right={() => (
             <Button
-              style={{ width: 100, marginRight: 10 }}
-              icon="content-save"
-              mode="contained"
-              onPress={async () => {
-                if (!item.formError) {
-                  setLoading(true);
-                  const result = await postItem({
-                    product: item.productName.value,
-                    brand: item.brand.value,
-                    category: item.category.value,
-                    categoryIcon: item.category.icon,
-                    displayWeight: convertStrToNum(item.weight.value),
-                    displayWeightUnit: item.weight.unit,
-                    weight: convertWeight(item.weight.value, item.weight.unit),
-                    weightUnit: "oz",
-                    price: convertStrToNum(item.price.value).toFixed(2),
-                    priceUnit: "$",
-                    link: removeURLTracking(item.url.value),
-                    description: item.description.value,
-                    consumable: item.consumable,
-                    nutrition: null,
-                    wearable: item.wearable,
-                    userID: getAuth().currentUser.uid,
-                    quantity: convertStrToNum(item.quantity.value),
-                  });
-
-                  if (result) {
-                    setItem(baseItem);
-                    setLoading(false);
-                    router.push({
-                      pathname: "locker/",
-                    });
-                  } else {
-                    updateItemState({
-                      ...item,
-                      formError: "Failed to update item",
-                    });
-                  }
-                }
+              mode="text"
+              onPress={() => {
+                router.push("locker/bulk");
               }}
+              style={{ marginRight: 20 }}
             >
-              Save
+              Bulk Import
             </Button>
           )}
+        />
 
-          <HelperText type="error" visible={!!item.formError}>
-            {item.formError}
-          </HelperText>
-        </View>
-      </Card.Actions>
-    </Card>
+        <Card.Content>
+          <Form item={item} updateItemState={updateItemState} />
+        </Card.Content>
+        <Card.Actions>
+          <View
+            style={{
+              alignItems: "flex-end",
+              flexDirection: "column",
+              justifyContent: "flex-end",
+            }}
+          >
+            {loading ? (
+              <Loading />
+            ) : (
+              <Button
+                style={{ marginRight: 10, width: 100 }}
+                icon="content-save"
+                mode="contained"
+                onPress={async () => {
+                  if (!item.formError) {
+                    setLoading(true);
+                    const result = await postItem({
+                      brand: item.brand.value,
+                      category: item.category.value,
+                      categoryIcon: item.category.icon,
+                      consumable: item.consumable,
+                      containers: [],
+                      description: item.description.value,
+                      displayWeight: convertStrToNum(item.weight.value),
+                      displayWeightUnit: item.weight.unit,
+                      link: removeURLTracking(item.url.value),
+                      nutrition: null,
+                      price: convertStrToNum(item.price.value).toFixed(2),
+                      priceUnit: "$",
+                      product: item.productName.value,
+                      quantity: convertStrToNum(item.quantity.value),
+                      userID: getAuth().currentUser.uid,
+                      wearable: item.wearable,
+                      weight: convertWeightToOunces(
+                        item.weight.value,
+                        item.weight.unit,
+                      ),
+                      weightUnit: "oz",
+                    });
+                    if (result) {
+                      setItem(baseItem);
+                      setLoading(false);
+                      router.push({
+                        pathname: "locker/",
+                      });
+                    } else {
+                      updateItemState({
+                        ...item,
+                        formError: "Failed to update item",
+                      });
+                    }
+                  }
+                }}
+              >
+                Save
+              </Button>
+            )}
+
+            <HelperText type="error" visible={!!item.formError}>
+              {item.formError}
+            </HelperText>
+          </View>
+        </Card.Actions>
+      </Card>
+    </ScrollView>
   );
 }
 
@@ -243,21 +249,21 @@ const style = StyleSheet.create({
     flexGrow: 1,
     margin: 10,
   },
-  formSingleRow: {
-    flexDirection: "column",
-    flexGrow: 1,
-    paddingTop: 5,
-    paddingBottom: 5,
+  divider: {
+    margin: 5,
   },
   formMultipleRow: {
+    alignItems: "center",
     flexDirection: "row",
     flexGrow: 1,
     justifyContent: "space-evenly",
-    alignItems: "center",
-    paddingTop: 5,
     paddingBottom: 5,
+    paddingTop: 5,
   },
-  divider: {
-    margin: 5,
+  formSingleRow: {
+    flexDirection: "column",
+    flexGrow: 1,
+    paddingBottom: 5,
+    paddingTop: 5,
   },
 });

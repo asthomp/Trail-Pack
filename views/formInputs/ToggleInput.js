@@ -18,11 +18,11 @@ export default function ToggleInput({
 }
 const defaultStyle = StyleSheet.create({
   formToggleRow: {
+    alignItems: "center",
     flexDirection: "row",
     flexGrow: 1,
     justifyContent: "space-between",
-    alignItems: "center",
-    paddingTop: 5,
     paddingBottom: 5,
+    paddingTop: 5,
   },
 });

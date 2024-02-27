@@ -20,9 +20,9 @@ export default function NumericInput({
   return (
     <View
       style={{
+        alignItems: "flex-start",
         flexDirection: "column",
         justifyContent: "center",
-        alignItems: "flex-start",
       }}
     >
       <Menu
@@ -39,17 +39,17 @@ export default function NumericInput({
               if (isNaN(+x.replace(/\s/g, ""))) {
                 setNumber({
                   ...number,
-                  value: x,
                   error: "Invalid number",
+                  value: x,
                 });
               } else if (parseFloat(x) < 1) {
                 setNumber({
                   ...number,
-                  value: x,
                   error: "Invalid quantity",
+                  value: x,
                 });
               } else {
-                setNumber({ ...number, value: x, error: null });
+                setNumber({ ...number, error: null, value: x });
               }
             }}
             right={

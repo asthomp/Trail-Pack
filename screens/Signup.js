@@ -1,60 +1,65 @@
-import { Link, router } from "expo-router";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { useState } from "react";
+import { Link } from "expo-router";
 import { View, StyleSheet } from "react-native";
-import { Button, Card } from "react-native-paper";
-import { MD2DarkTheme as theme } from "react-native-paper/src";
+import { Button, Card, HelperText, TextInput } from "react-native-paper";
 
-import SecureTextInput from "../views/SecureTextInput";
-export default function Signup() {
-  const [email, setEmail] = useState({ value: "", error: "" });
-  const [password, setPassword] = useState({ value: "", error: "" });
-
+export default function Signup({
+  newCredentials,
+  onChangeEmail,
+  onChangePassword,
+  onSignup,
+}) {
   return (
     <View style={style.signupContainer}>
       <Card style={style.signupCard}>
-        <Card.Title title="Signup" />
+        <Card.Title title="Create Account" />
         <Card.Content>
-          <SecureTextInput
-            label="Email"
-            placeholder="email@youremail.com"
-            returnKeyType="next"
-            value={email.value}
-            onChangeText={(text) => setEmail({ value: text, error: "" })}
-            error={!!email.error}
-            errorText={email.error}
-            autoCapitalize="none"
-            autoCompleteType="email"
-            textContentType="emailAddress"
-            keyboardType="email-address"
-          />
-          <SecureTextInput
-            label="Password"
-            returnKeyType="done"
-            value={password.value}
-            onChangeText={(text) => setPassword({ value: text, error: "" })}
-            error={!!password.error}
-            errorText={password.error}
-            secureTextEntry
-          />
+          <View style={style.textElementColumn}>
+            <View style={style.singleTextElement}>
+              <TextInput
+                autoCapitalize="none"
+                autoComplete="email"
+                clearButtonMode="while-editing"
+                keyboardType="email-address"
+                label="Email"
+                maxLength={50}
+                mode="outlined"
+                onChangeText={onChangeEmail}
+                placeholder="email@email.com"
+                value={newCredentials.email.value}
+              />
+              <HelperText
+                type="error"
+                padding="none"
+                visible={!!newCredentials.email.error}
+              >
+                {newCredentials.email.error}
+              </HelperText>
+            </View>
+            <View style={style.singleTextElement}>
+              <TextInput
+                autoCapitalize="none"
+                autoComplete="current-password"
+                clearButtonMode="while-editing"
+                label="Password"
+                maxLength={50}
+                mode="outlined"
+                onChangeText={onChangePassword}
+                secureTextEntry
+                value={newCredentials.password.value}
+              />
+              <HelperText
+                type="error"
+                padding="none"
+                visible={!!newCredentials.password.error}
+              >
+                {newCredentials.password.error}
+              </HelperText>
+            </View>
+          </View>
           <Button
             mode="contained"
-            onPress={() => {
-              const auth = getAuth();
-              createUserWithEmailAndPassword(auth, email.value, password.value)
-                .then((userCredential) => {
-                  // Signed up
-                  const user = userCredential.user;
-                  console.log(user);
-                  router.push("/");
-                })
-                .catch((error) => {
-                  const errorCode = error.code;
-                  const errorMessage = error.message;
-                  console.log(errorMessage);
-                  console.log(errorCode);
-                });
-            }}
+            onPress={onSignup}
+            style={style.buttonPadding}
           >
             Signup
           </Button>
@@ -68,23 +73,30 @@ export default function Signup() {
 }
 
 const style = StyleSheet.create({
-  signupContainer: {
-    flexGrow: 1,
-    alignItems: "center",
-    justifyContent: "center",
+  buttonPadding: {
+    marginBottom: 10,
+    marginLeft: 5,
+    marginRight: 5,
+    marginTop: 10,
   },
   signupCard: {
-    width: "80%",
+    flex: 1,
+    flexDirection: "column",
+    margin: 20,
   },
-  button: {
-    marginTop: 24,
-  },
-  row: {
+  signupContainer: {
+    alignItems: "center",
     flexDirection: "row",
-    marginTop: 4,
+    flexGrow: 1,
+    justifyContent: "center",
   },
-  link: {
-    fontWeight: "bold",
-    color: theme.colors.primary,
+  singleTextElement: { marginBottom: 5 },
+  textElementColumn: {
+    flexDirection: "column",
+    flexGrow: 1,
+    padding: 5,
+  },
+  textInputPadding: {
+    marginBottom: 10,
   },
 });

@@ -28,7 +28,7 @@ export default function Form({ item, updateItemState }) {
         }}
         error={item.productName.error}
       />
-      <Divider style={{ marginTop: 0, marginBottom: 10 }} />
+      <Divider style={{ marginBottom: 10, marginTop: 0 }} />
       <CategoryInput
         category={item.category}
         onFocusChange={(x) => {
@@ -44,7 +44,7 @@ export default function Form({ item, updateItemState }) {
           });
         }}
       />
-      <Divider style={{ marginTop: 10, marginBottom: 10 }} />
+      <Divider style={{ marginBottom: 10, marginTop: 10 }} />
       <WeightRowInput
         weight={item.weight.value}
         error={item.weight.error}
@@ -69,7 +69,7 @@ export default function Form({ item, updateItemState }) {
         }}
       />
 
-      <Divider style={{ marginTop: 0, marginBottom: 10 }} />
+      <Divider style={{ marginBottom: 10, marginTop: 0 }} />
       <ToggleInput
         title="Wearable?"
         toggle={item.wearable}
@@ -77,7 +77,7 @@ export default function Form({ item, updateItemState }) {
           updateItemState({ ...item, wearable: x });
         }}
       />
-      <Divider style={{ marginTop: 10, marginBottom: 10 }} />
+      <Divider style={{ marginBottom: 10, marginTop: 10 }} />
       <ToggleInput
         title="Consumable?"
         toggle={item.consumable}
@@ -85,7 +85,7 @@ export default function Form({ item, updateItemState }) {
           updateItemState({ ...item, consumable: x });
         }}
       />
-      <Divider style={{ marginTop: 10, marginBottom: 10 }} />
+      <Divider style={{ marginBottom: 10, marginTop: 10 }} />
       <TextFieldInput
         error={item.description.error}
         onFocusChange={(x) => {
@@ -103,7 +103,7 @@ export default function Form({ item, updateItemState }) {
         text={item.description.value}
         title="Description"
       />
-      <Divider style={{ marginTop: 0, marginBottom: 10 }} />
+      <Divider style={{ marginBottom: 10, marginTop: 0 }} />
       <TextFieldInput
         error={item.brand.error}
         onFocusChange={(x) => {
@@ -121,7 +121,7 @@ export default function Form({ item, updateItemState }) {
         text={item.brand.value}
         title="Brand"
       />
-      <Divider style={{ marginTop: 0, marginBottom: 10 }} />
+      <Divider style={{ marginBottom: 10, marginTop: 0 }} />
       <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
         <TextFieldInput
           error={item.price.error}
@@ -161,7 +161,7 @@ export default function Form({ item, updateItemState }) {
           error={item.quantity.error}
         />
       </View>
-      <Divider style={{ marginTop: 0, marginBottom: 10 }} />
+      <Divider style={{ marginBottom: 10, marginTop: 0 }} />
       <TextFieldInput
         error={item.url.error}
         icon="web"

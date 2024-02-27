@@ -31,7 +31,11 @@ export default function ViewNutritionFacts({ item }) {
                 size={20}
                 icon={visible ? "chevron-up" : "chevron-down"}
                 onPress={() => {
-                  visible ? setVisible(false) : setVisible(true);
+                  if (visible) {
+                    setVisible(false);
+                  } else {
+                    setVisible(true);
+                  }
                 }}
               />
             )}
@@ -72,29 +76,29 @@ export default function ViewNutritionFacts({ item }) {
 }
 
 const style = StyleSheet.create({
-  nutritionFactsSurface: {
-    flex: "grow",
-    marginTop: 5,
-    marginRight: 10,
-    marginLeft: 10,
-    marginBottom: 20,
-    padding: 10,
-    backgroundColor: "#FFFFFF",
-  },
   nutritionFactsRow: {
+    alignItems: "center",
     flexDirection: "row",
     flexGrow: 1,
     justifyContent: "space-between",
-    alignItems: "center",
     margin: 10,
+  },
+  nutritionFactsRowCompact: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexGrow: 1,
+    justifyContent: "space-between",
   },
   nutritionFactsSectionWithHelper: {
     flexDirection: "column",
   },
-  nutritionFactsRowCompact: {
-    flexDirection: "row",
-    flexGrow: 1,
-    justifyContent: "space-between",
-    alignItems: "center",
+  nutritionFactsSurface: {
+    backgroundColor: "#FFFFFF",
+    flex: "grow",
+    marginBottom: 20,
+    marginLeft: 10,
+    marginRight: 10,
+    marginTop: 5,
+    padding: 10,
   },
 });

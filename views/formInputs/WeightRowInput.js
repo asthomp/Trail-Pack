@@ -19,9 +19,9 @@ export default function WeightRowInput({
     <View style={[style]}>
       <View
         style={{
+          alignItems: "center",
           flexDirection: "row",
           justifyContent: "center",
-          alignItems: "center",
         }}
       >
         <TextFieldInput

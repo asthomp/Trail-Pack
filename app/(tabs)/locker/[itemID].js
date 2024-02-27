@@ -19,13 +19,14 @@ export default function ViewItemRoute() {
       onDismissDeleteModal={viewModel.onDismissDeleteModal}
       onShowDebugModal={viewModel.onShowDebugModal}
       onShowDeleteModal={viewModel.onShowDeleteModal}
+      returnTo={viewModel.returnPath}
     />
   );
 }
 
 export function useViewItemViewModel() {
   const { getItem, deleteItem } = useDataContext();
-  const { itemID } = useLocalSearchParams();
+  const { itemID, returnPath } = useLocalSearchParams();
   const [deleteModal, setDeleteModal] = useState(false);
   const [debugModal, setDebugModal] = useState(false);
   const [isDeleteInProgress, setIsDeleteInProgress] = useState(false);
@@ -43,7 +44,7 @@ export function useViewItemViewModel() {
       if (result) {
         setIsDeleteInProgress(false);
         onDismissDeleteModal();
-        router.push("/locker");
+        router.push(returnPath);
       }
     })();
   };
@@ -58,5 +59,6 @@ export function useViewItemViewModel() {
     onDismissDeleteModal,
     onShowDebugModal,
     onShowDeleteModal,
+    returnPath,
   };
 }

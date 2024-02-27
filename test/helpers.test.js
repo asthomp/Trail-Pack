@@ -1,12 +1,15 @@
 // These tests evaluate the helper functions found in dataParser.js
 import {
   assignCategoryIcon,
+  convertOuncesToPounds,
   convertStrToNum,
-  convertWeight,
+  convertWeightToOunces,
   createRange,
+  randomFromArray,
   removeItemID,
   removeURLTracking,
   sortArray,
+  sumValues,
   validateURL,
   weightUnitParser,
 } from "../utils/helpers";
@@ -74,23 +77,44 @@ describe("convertStrToNum function", () => {
   });
 });
 
-// CONVERT WEIGHT FUNCTION
-describe("convertWeight", () => {
+// CONVERT WEIGHT TO OUNCES FUNCTION
+describe("convertWeightToOunces", () => {
   test("Converts pounds to ounces", () => {
-    expect(convertWeight(1, "pound")).toBeCloseTo(16.0, 2);
+    expect(convertWeightToOunces(1, "pound")).toBeCloseTo(16.0, 2);
   });
 
   test("Converts grams to ounces", () => {
-    expect(convertWeight(1, "grams")).toBeCloseTo(0.03527396, 2);
+    expect(convertWeightToOunces(1, "grams")).toBeCloseTo(0.03527396, 2);
   });
 
   test("Returns the original value for unsupported units", () => {
-    expect(convertWeight(10, "kilograms")).toBe(10);
+    expect(convertWeightToOunces(10, "kilograms")).toBe(10);
   });
 
   test("Throws an error for negative input values", () => {
     expect(() => {
-      convertWeight(-5, "pounds");
+      convertWeightToOunces(-5, "pounds");
+    }).toThrowError("Input value cannot be negative.");
+  });
+});
+
+// CONVERT WEIGHT FUNCTION
+describe("convertOuncesToPounds", () => {
+  test("Converts pounds to ounces", () => {
+    expect(convertOuncesToPounds(16)).toBeCloseTo(1, 2);
+  });
+
+  test("Converts pounds to ounces", () => {
+    expect(convertOuncesToPounds(8)).toBeCloseTo(0.5, 2);
+  });
+
+  test("Converts pounds to ounces", () => {
+    expect(convertOuncesToPounds(24)).toBeCloseTo(1.5, 2);
+  });
+
+  test("Throws an error for negative input values", () => {
+    expect(() => {
+      convertOuncesToPounds(-5, "pounds");
     }).toThrowError("Input value cannot be negative.");
   });
 });
@@ -137,9 +161,9 @@ describe("removeItemID", () => {
 
   // Test case 4: Should handle an object with other keys
   it("handles an object with other keys", () => {
-    const inputObject = { itemID: 456, name: "Example", age: 25 };
+    const inputObject = { age: 25, itemID: 456, name: "Example" };
     const result = removeItemID(inputObject);
-    expect(result).toEqual({ name: "Example", age: 25 });
+    expect(result).toEqual({ age: 25, name: "Example" });
   });
 });
 
@@ -273,6 +297,23 @@ describe("sortArray", () => {
     );
   });
 });
+// SUM VALUES FUNCTION
+describe("sumArray", () => {
+  test("sumValues should return the correct sum for an array of numeric strings", () => {
+    const result = sumValues(["1", "2", "3"]);
+    expect(result).toBe(6);
+  });
+
+  test("sumValues should handle an empty array and return 0", () => {
+    const result = sumValues([]);
+    expect(result).toBe(0);
+  });
+
+  test("sumValues should handle an array with non-numeric strings and ignore them", () => {
+    const result = sumValues(["1", "abc", "3", "xyz"]);
+    expect(result).toBe(4); // 1 + 3 = 4
+  });
+});
 
 // VALIDATE URL FUNCTION
 describe("validateURL", () => {
@@ -344,5 +385,34 @@ describe("weightUnitParser", () => {
     expect(() => weightUnitParser(1)).toThrowError(
       "Incorrect input; requires a valid string with at least 1 character",
     );
+  });
+});
+
+// Test suite for randomFromArray function
+describe("randomFromArray", () => {
+  // Test case for a non-empty array
+  test("Should return a random element from the array", () => {
+    const inputArray = [1, 2, 3, 4, 5];
+    const result = randomFromArray(inputArray);
+    expect(inputArray).toContain(result);
+  });
+
+  test("Should return the original empty array", () => {
+    const inputArray = [];
+    const result = randomFromArray(inputArray);
+    expect(result).toEqual(inputArray);
+  });
+
+  test("Should return the original falsy array", () => {
+    const inputArray = null;
+    const result = randomFromArray(inputArray);
+    expect(result).toEqual(inputArray);
+  });
+
+  // Test case for undefined array
+  test("Should return the original undefined array", () => {
+    const inputArray = undefined;
+    const result = randomFromArray(inputArray);
+    expect(result).toEqual(inputArray);
   });
 });

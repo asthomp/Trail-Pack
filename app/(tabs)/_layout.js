@@ -4,12 +4,6 @@ import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import DataContextProvider from "../../utils/DataProvider";
-import NavBar from "../../views/NavBar";
-
-//Pushes the Landing page onto the navigation stack.
-export const unstable_settings = {
-  initialRouteName: "index",
-};
 
 export default function TabsLayout() {
   const x = useSafeAreaInsets();
@@ -22,9 +16,7 @@ export default function TabsLayout() {
           web: { bottom: x.bottom + 10 },
         })}
         screenOptions={{
-          header: (props) => {
-            return <NavBar props={props} />;
-          },
+          headerShown: false,
         }}
       >
         {/* Visible Routes */}
@@ -47,7 +39,7 @@ export default function TabsLayout() {
                 color={color}
               />
             ),
-            title: "My Pack",
+            title: "My Packs",
           }}
         />
         <Tabs.Screen
@@ -75,6 +67,12 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
+          name="locker/bulk"
+          options={{
+            href: null,
+          }}
+        />
+        <Tabs.Screen
           name="locker/edit"
           options={{
             href: null,
@@ -83,6 +81,27 @@ export default function TabsLayout() {
 
         <Tabs.Screen
           name="locker/[itemID]"
+          options={{
+            href: null,
+          }}
+        />
+
+        <Tabs.Screen
+          name="pack/[packID]/index"
+          options={{
+            href: null,
+          }}
+        />
+
+        <Tabs.Screen
+          name="pack/add"
+          options={{
+            href: null,
+          }}
+        />
+
+        <Tabs.Screen
+          name="pack/[packID]/add"
           options={{
             href: null,
           }}

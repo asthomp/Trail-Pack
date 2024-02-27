@@ -34,7 +34,7 @@ const convertStrToNum = function (num) {
 };
 
 // Converts a given weight value into ounces.
-const convertWeight = function (value, unit) {
+const convertWeightToOunces = function (value, unit) {
   if (value < 0) {
     throw new Error("Input value cannot be negative.");
   }
@@ -61,6 +61,15 @@ const convertWeight = function (value, unit) {
   return value;
 };
 
+// Given a value in ounces, converts it to pounds.
+const convertOuncesToPounds = function (value) {
+  if (value < 0) {
+    throw new Error("Input value cannot be negative.");
+  }
+
+  return Math.round((value / 16 + Number.EPSILON) * 100) / 100;
+};
+
 // Given two numbers, creates a range of numbers (inclusive).
 const createRange = function (start, end) {
   if (start > end) {
@@ -69,6 +78,14 @@ const createRange = function (start, end) {
     );
   }
   return Array.from({ length: end - start + 1 }, (_, i) => i + start);
+};
+
+// Given an array, returns a random element; if it fails, returns original array.
+const randomFromArray = function (arr) {
+  if (arr && arr.length > 0) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+  return arr;
 };
 
 // Removes the "itemID" key from an object; this field is stored in the database as a document ID, not as a field.
@@ -151,6 +168,15 @@ function sortArray(array, orderBy = "timestamp", order = "asc") {
   return newArray.sort(comparator);
 }
 
+// Given an array, returns the sum of its values.
+const sumValues = function (arr) {
+  let sum = 0;
+  for (let i = 0; i < arr.length; i++) {
+    sum = sum + convertStrToNum(arr[i]);
+  }
+  return sum;
+};
+
 // Confirms a given string is a valid URL
 const validateURL = function (url) {
   if (!url || typeof url !== "string" || url.length < 4) {
@@ -189,12 +215,15 @@ const weightUnitParser = function (unit) {
 
 export {
   assignCategoryIcon,
-  convertWeight,
+  convertOuncesToPounds,
   convertStrToNum,
+  convertWeightToOunces,
   createRange,
+  randomFromArray,
   removeItemID,
   removeURLTracking,
   sortArray,
+  sumValues,
   validateURL,
   weightUnitParser,
 };
