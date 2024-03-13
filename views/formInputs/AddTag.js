@@ -1,7 +1,7 @@
 // Mnaages selecting/deselecting tags
 import React from "react";
 import { View } from "react-native";
-import { Chip, IconButton } from "react-native-paper";
+import { Chip, HelperText, IconButton } from "react-native-paper";
 
 import TextFieldInput from "./TextFieldInput";
 
@@ -11,6 +11,7 @@ export default function AddTag({
   buildNewTag,
   style,
   tags,
+  tagsError,
   removeTag,
 }) {
   return (
@@ -21,7 +22,6 @@ export default function AddTag({
           flexDirection: "row",
           flexGrow: 1,
           justifyContent: "center",
-          marginBottom: 20,
         }}
       >
         <TextFieldInput
@@ -40,6 +40,9 @@ export default function AddTag({
           onPress={addTagToCollection}
         />
       </View>
+      <HelperText type="error" visible={!!newTag.error}>
+        {newTag.error}
+      </HelperText>
       {/* Preview of the tags entered. */}
       <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
         {tags?.length > 0
@@ -60,6 +63,9 @@ export default function AddTag({
             })
           : null}
       </View>
+      <HelperText type="error" visible={!!tagsError}>
+        {tagsError}
+      </HelperText>
     </View>
   );
 }

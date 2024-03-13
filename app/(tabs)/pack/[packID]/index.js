@@ -1,5 +1,5 @@
-import { useLocalSearchParams } from "expo-router";
-import React from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useState } from "react";
 
 import ViewPack from "../../../../screens/ViewPack";
 import { useDataContext } from "../../../../utils/DataProvider";
@@ -10,6 +10,8 @@ export default function ViewPackRoute() {
   return (
     <ViewPack
       addItemToPack={viewPackViewModel.addItemToPack}
+      deleteButtonIcon={viewPackViewModel.deleteButtonIcon}
+      onDeletePack={viewPackViewModel.onDeletePack}
       pack={viewPackViewModel.pack}
       removeItemFromPack={viewPackViewModel.removeItemFromPack}
     />
@@ -17,11 +19,24 @@ export default function ViewPackRoute() {
 }
 
 export function useViewPackViewModel() {
-  const { getPack, addItemToPack, removeItemFromPack } = useDataContext();
+  const [deleteButtonIcon, setDeleteButtonIcon] = useState("delete");
+  const { addItemToPack, deletePack, getPack, removeItemFromPack } =
+    useDataContext();
   const { packID } = useLocalSearchParams();
   const targetPack = getPack(packID);
+  const returnPath = "/pack";
+
+  const onDeletePack = async function () {
+    setDeleteButtonIcon("loading");
+    await deletePack(packID);
+    setDeleteButtonIcon("delete");
+    router.push(returnPath);
+  };
+
   return {
     addItemToPack,
+    deleteButtonIcon,
+    onDeletePack,
     pack: targetPack,
     removeItemFromPack,
   };
