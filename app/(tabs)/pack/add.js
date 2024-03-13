@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { getAuth } from "firebase/auth";
 import React, { useState } from "react";
 
@@ -13,6 +14,7 @@ export default function AddPackRoute() {
       buildNewTag={viewModel.buildNewTag}
       newTag={viewModel.newTag}
       onSavePack={viewModel.onSavePack}
+      saveButtonIcon={viewModel.saveButtonIcon}
       pack={viewModel.pack}
       removeTag={viewModel.removeTag}
       updatePackState={viewModel.updatePackState}
@@ -21,6 +23,7 @@ export default function AddPackRoute() {
 }
 
 export function useNewPackViewModel() {
+  const returnPath = "/pack";
   const { postPack } = useDataContext();
   const defaultState = {
     description: { error: null, focused: false, value: "" },
@@ -30,44 +33,47 @@ export function useNewPackViewModel() {
     trip: { error: null, focused: false, value: "" },
   };
   const [pack, setPack] = useState(defaultState);
+  const [isSaving, setIsSaving] = useState(false);
   const [newTag, setNewTag] = useState({ error: null, value: "" });
 
-  // Manages creating a new tag to add to the tag list
+  // Manages the new tag being added to the tag list
   const buildNewTag = (x) => {
-    if (!_checkForCharacterLimitError(x, 10)) {
-      setNewTag({ error: null, value: x });
+    setPack({ ...pack, tags: { ...pack.tags, error: null } });
+    if (_checkForCharacterLimitError(x, 10)) {
+      setNewTag({ error: _charLimitErrorMessage(10, 10 - x.length), value: x });
     } else {
-      setNewTag({ ...newTag, error: _charLimitError(10) });
+      setNewTag({ error: null, value: x });
     }
   };
 
   // Stores a newly-created tag to the tag list
   const addTagToCollection = () => {
-    if (_containsDuplicate(pack.tags.value, newTag.value)) {
-    }
-
-    if (
-      newTag.value.length > 0 &&
-      !newTag.error &&
-      !_containsDuplicate(pack.tags.value, newTag.value)
-    ) {
+    if (pack.tags.value.length > 10) {
+      setPack({ ...pack, tags: { ...pack.tags, error: "Too many tags" } });
+    } else if (_containsDuplicate(pack.tags.value, newTag.value)) {
+      setPack({ ...pack, tags: { ...pack.tags, error: "Duplicate tag" } });
+    } else if (newTag.value.length > 0 && !newTag.error && !pack.tags.error) {
       const tempTags = pack.tags.value;
       tempTags.push(newTag.value);
       setPack({ ...pack, tags: { ...pack.tags, value: tempTags } });
+      setNewTag({ error: null, value: "" });
     }
   };
 
+  // Remove the target tag
   const removeTag = (tag) => {
     if (!tag) {
       return undefined;
     }
-
-    const isNotTag = function (x) {
+    const tags = pack.tags.value.filter((x) => {
       return x !== tag;
-    };
-    let tags = pack.tags.value;
-    tags = tags.filter(isNotTag);
+    });
     setPack({ ...pack, tags: { ...pack.tags, value: tags } });
+
+    // If we deleted a tag, recreating it is no longer duplication
+    if (newTag.value === tag) {
+      setNewTag({ ...newTag, error: null });
+    }
   };
 
   // Manages updating the pack and checking for input errors
@@ -88,26 +94,30 @@ export function useNewPackViewModel() {
 
     // Check validity of inputs
     if (_checkForCharacterLimitError(x.name.value, 25)) {
-      x.name.error = _charLimitError(25);
+      x.name.error = _charLimitErrorMessage(25, 25 - x.name.value.length);
     }
     if (_checkForCharacterLimitError(x.description.value, 100)) {
-      x.description.error = _charLimitError(100);
+      x.description.error = _charLimitErrorMessage(
+        100,
+        100 - x.description.value.length,
+      );
     }
     if (_checkForCharacterLimitError(x.trip.value, 25)) {
-      x.trip.error = _charLimitError(25);
+      x.trip.error = _charLimitErrorMessage(25, 25 - x.trip.value.length);
     }
 
     setPack(x);
   };
 
+  // Handles prepping & saving the formatted pack to the database
   const onSavePack = async function () {
+    setIsSaving(true);
     if (!_isFormComplete(pack)) {
       setPack({
         ...pack,
         form: { ...pack.form, error: "It looks like some data is missing" },
         name: { ...pack.name, error: "Required field" },
       });
-      return true;
     } else if (_hasErrors(pack)) {
       setPack({
         ...pack,
@@ -119,6 +129,7 @@ export function useNewPackViewModel() {
     } else {
       try {
         const newPack = {
+          contents: [],
           description: pack.description.value,
           name: pack.name.value,
           tags: pack.tags.value,
@@ -129,6 +140,8 @@ export function useNewPackViewModel() {
         };
         await postPack(newPack);
         setPack(defaultState);
+        setIsSaving(false);
+        router.push(returnPath);
       } catch (error) {
         console.error(error);
         setPack({
@@ -153,8 +166,8 @@ export function useNewPackViewModel() {
   };
 
   // Builds a display message for an exceeded character limit
-  const _charLimitError = function (limit) {
-    return `Exceeded character limit (${limit})`;
+  const _charLimitErrorMessage = function (limit, correction) {
+    return `Exceeded ${limit} character limit (${correction})`;
   };
 
   // Given an object, identifies whether-or-not any of its keys have error properties

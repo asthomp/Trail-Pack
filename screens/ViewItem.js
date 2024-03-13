@@ -52,20 +52,34 @@ export default function ViewItem({
             />
           )}
           right={() => (
-            <IconButton
-              accessibilityLabel="Edit Item"
-              mode="contained-tonal"
-              size={20}
-              icon="pencil"
-              onPress={() => {
-                router.push({
-                  params: {
-                    itemID: item.itemID,
-                  },
-                  pathname: "locker/edit",
-                });
-              }}
-            />
+            <View style={{ flexDirection: "row" }}>
+              <IconButton
+                accessibilityLabel="Edit Item"
+                mode="contained-tonal"
+                size={20}
+                icon="pencil"
+                onPress={() => {
+                  router.push({
+                    params: {
+                      itemID: item.itemID,
+                    },
+                    pathname: "locker/edit",
+                  });
+                }}
+              />
+
+              <IconButton
+                accessibilityLabel="Close Item"
+                mode="contained-tonal"
+                size={20}
+                icon="close"
+                onPress={() => {
+                  router.push({
+                    pathname: "locker",
+                  });
+                }}
+              />
+            </View>
           )}
         />
 

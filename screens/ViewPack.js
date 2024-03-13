@@ -15,7 +15,7 @@ import {
 
 import PackItem from "./PackItem";
 import PackKit from "./PackKit";
-export default function ViewPack({ pack }) {
+export default function ViewPack({ deleteButtonIcon, onDeletePack, pack }) {
   const [detailsVisible, setDetailsVisible] = useState(false);
 
   const toggleDetails = function () {
@@ -77,10 +77,10 @@ export default function ViewPack({ pack }) {
               <Card.Actions>
                 <View style={style.deleteActions}>
                   <Button
-                    icon="delete"
+                    icon={deleteButtonIcon}
                     iconColor="rgb(186, 26, 26)"
                     mode="contained-tonal"
-                    onPress={() => alert("Delete!")}
+                    onPress={onDeletePack}
                   >
                     Delete
                   </Button>

@@ -1,7 +1,4 @@
 // This screen manages building a new pack.
-
-import { router } from "expo-router";
-import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Avatar, Button, Card, HelperText } from "react-native-paper";
 
@@ -13,12 +10,12 @@ export default function NewPack({
   addTagToCollection,
   buildNewTag,
   newTag,
+  isSaving,
   onSavePack,
   pack,
   removeTag,
   updatePackState,
 }) {
-  const [loading, setLoading] = useState(false);
   return (
     <ScrollView>
       <Card style={style.addPackCard}>
@@ -87,6 +84,7 @@ export default function NewPack({
             buildNewTag={buildNewTag}
             newTag={newTag}
             tags={pack.tags.value}
+            tagsError={pack.tags.error}
             removeTag={removeTag}
           />
         </Card.Content>
@@ -98,32 +96,14 @@ export default function NewPack({
               justifyContent: "flex-end",
             }}
           >
-            {loading ? (
+            {isSaving ? (
               <Loading />
             ) : (
               <Button
                 style={{ marginRight: 10, width: 100 }}
                 icon="content-save"
                 mode="contained"
-                onPress={async () => {
-                  setLoading(true);
-                  const result = await onSavePack();
-                  if (result) {
-                    setLoading(false);
-                    router.push({
-                      pathname: "pack/",
-                    });
-                  } else {
-                    updatePackState({
-                      ...pack,
-                      form: {
-                        ...pack.form,
-                        error: "500: Failed to update pack",
-                      },
-                    });
-                  }
-                  setLoading(false);
-                }}
+                onPress={onSavePack}
               >
                 Save
               </Button>

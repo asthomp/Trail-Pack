@@ -278,6 +278,23 @@ export default function DataContextProvider({ children }) {
     }
   };
 
+  const deletePack = async function (packID) {
+    const targetPack = getPack(packID);
+    // If a to-be-deleted pack contains items, remove references to the pack from each item.
+    if (targetPack?.contents?.length >= 0) {
+      for (let i = 0; i < targetPack.contents.length; i++) {
+        if (targetPack.contents[i].type === "item") {
+          await _removePackReferenceFromItem(
+            targetPack.contents[i].itemID,
+            packID,
+          );
+        }
+      }
+
+      return await _deleteDocument("packs", packID);
+    }
+  };
+
   // Removes an item from a pack as well as its reference to that pack.
   const removeItemFromPack = async function (itemID, packID) {
     const targetPack = getPack(packID);
@@ -295,7 +312,7 @@ export default function DataContextProvider({ children }) {
       return;
     }
     await _removeItemFromPack(itemID, targetItem.weight, packID, targetPack);
-    await _removePackReferenceFromItem(itemID, packID, targetItem);
+    await _removePackReferenceFromItem(itemID, packID);
   };
 
   const _removeItemFromPack = async function (
@@ -319,11 +336,8 @@ export default function DataContextProvider({ children }) {
     }
   };
 
-  const _removePackReferenceFromItem = async function (
-    itemID,
-    packID,
-    targetItem,
-  ) {
+  const _removePackReferenceFromItem = async function (itemID, packID) {
+    const targetItem = getItem(itemID);
     if (targetItem?.containers?.length > 0) {
       targetItem.containers = targetItem.containers.filter(
         (x) => !(x.type === "pack" && x.packID === packID),
@@ -337,6 +351,7 @@ export default function DataContextProvider({ children }) {
       value={{
         addItemToPack,
         deleteItem,
+        deletePack,
         getItem,
         getItems,
         getPack,
